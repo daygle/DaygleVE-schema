@@ -1,0 +1,398 @@
+# DaygleVE REST API — v1
+#
+# This document describes the endpoint surface (paths, methods, auth and status
+# codes) of the DaygleVE backend. The request/response *shapes* are the
+# authoritative Rust types in `src/` and their generated TypeScript bindings;
+# the schema objects below are intentionally summarised and reference those.
+#
+# Keep this file in sync with the backend router and the Rust types.
+openapi: 3.1.0
+info:
+  title: DaygleVE API
+  version: "1.0.0"
+  description: >
+    Single-node virtualization control API for KVM/QEMU VMs, LXC containers,
+    ZFS storage, Linux networking, GPU passthrough and metrics.
+  license:
+    name: Apache-2.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+
+tags:
+  - name: auth
+  - name: vms
+  - name: containers
+  - name: storage
+  - name: network
+  - name: gpus
+  - name: metrics
+  - name: system
+
+paths:
+  /health:
+    get:
+      tags: [system]
+      summary: Liveness/readiness probe.
+      security: []
+      responses:
+        "200": { $ref: "#/components/responses/HealthStatus" }
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Exchange credentials for a bearer token.
+      security: []
+      requestBody: { $ref: "#/components/requestBodies/LoginRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/LoginResponse" }
+        "401": { $ref: "#/components/responses/Error" }
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: Return the caller's identity and effective permissions.
+      responses:
+        "200": { $ref: "#/components/responses/CurrentUser" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /vms:
+    get:
+      tags: [vms]
+      summary: List virtual machines. Requires `vm_read`.
+      parameters: [ { $ref: "#/components/parameters/Page" }, { $ref: "#/components/parameters/PerPage" } ]
+      responses:
+        "200": { $ref: "#/components/responses/VmPage" }
+    post:
+      tags: [vms]
+      summary: Create a virtual machine. Requires `vm_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateVmRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Vm" }
+        "400": { $ref: "#/components/responses/Error" }
+  /vms/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [vms]
+      summary: Get a virtual machine. Requires `vm_read`.
+      responses:
+        "200": { $ref: "#/components/responses/Vm" }
+        "404": { $ref: "#/components/responses/Error" }
+    patch:
+      tags: [vms]
+      summary: Update a virtual machine. Requires `vm_write`.
+      requestBody: { $ref: "#/components/requestBodies/UpdateVmRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/Vm" }
+    delete:
+      tags: [vms]
+      summary: Delete a virtual machine. Requires `vm_write`.
+      responses:
+        "204": { description: Deleted. }
+  /vms/{id}/power:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [vms]
+      summary: Perform a power action. Requires `vm_power`.
+      requestBody: { $ref: "#/components/requestBodies/VmPowerRequest" }
+      responses:
+        "202": { $ref: "#/components/responses/Vm" }
+  /vms/{id}/console:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [vms]
+      summary: Issue a short-lived noVNC console ticket. Requires `vm_power`.
+      responses:
+        "200": { $ref: "#/components/responses/ConsoleTicket" }
+
+  /containers:
+    get:
+      tags: [containers]
+      summary: List LXC containers. Requires `lxc_read`.
+      parameters: [ { $ref: "#/components/parameters/Page" }, { $ref: "#/components/parameters/PerPage" } ]
+      responses:
+        "200": { $ref: "#/components/responses/LxcPage" }
+    post:
+      tags: [containers]
+      summary: Create an LXC container. Requires `lxc_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateLxcRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Lxc" }
+  /containers/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [containers]
+      summary: Get an LXC container. Requires `lxc_read`.
+      responses:
+        "200": { $ref: "#/components/responses/Lxc" }
+    patch:
+      tags: [containers]
+      summary: Update an LXC container. Requires `lxc_write`.
+      requestBody: { $ref: "#/components/requestBodies/UpdateLxcRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/Lxc" }
+    delete:
+      tags: [containers]
+      summary: Delete an LXC container. Requires `lxc_write`.
+      responses:
+        "204": { description: Deleted. }
+  /containers/{id}/power:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [containers]
+      summary: Perform a power action. Requires `lxc_power`.
+      requestBody: { $ref: "#/components/requestBodies/LxcPowerRequest" }
+      responses:
+        "202": { $ref: "#/components/responses/Lxc" }
+
+  /storage/pools:
+    get:
+      tags: [storage]
+      summary: List ZFS pools. Requires `storage_read`.
+      responses:
+        "200": { $ref: "#/components/responses/PoolList" }
+  /storage/datasets:
+    get:
+      tags: [storage]
+      summary: List datasets. Requires `storage_read`.
+      responses:
+        "200": { $ref: "#/components/responses/DatasetList" }
+    post:
+      tags: [storage]
+      summary: Create a dataset or zvol. Requires `storage_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateDatasetRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Dataset" }
+  /storage/datasets/{id}/snapshots:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [storage]
+      summary: List snapshots of a dataset. Requires `storage_read`.
+      responses:
+        "200": { $ref: "#/components/responses/SnapshotList" }
+    post:
+      tags: [storage]
+      summary: Snapshot a dataset. Requires `storage_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateSnapshotRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Snapshot" }
+  /storage/snapshots/{id}/clone:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [storage]
+      summary: Clone a snapshot into a new dataset. Requires `storage_write`.
+      requestBody: { $ref: "#/components/requestBodies/CloneSnapshotRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Dataset" }
+
+  /network/bridges:
+    get:
+      tags: [network]
+      summary: List Linux bridges. Requires `network_read`.
+      responses:
+        "200": { $ref: "#/components/responses/BridgeList" }
+    post:
+      tags: [network]
+      summary: Create a bridge. Requires `network_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateBridgeRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Bridge" }
+  /network/vlans:
+    get:
+      tags: [network]
+      summary: List VLANs. Requires `network_read`.
+      responses:
+        "200": { $ref: "#/components/responses/VlanList" }
+    post:
+      tags: [network]
+      summary: Create a VLAN. Requires `network_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateVlanRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/Vlan" }
+
+  /gpus:
+    get:
+      tags: [gpus]
+      summary: List host GPUs eligible for passthrough. Requires `gpu_read`.
+      responses:
+        "200": { $ref: "#/components/responses/GpuList" }
+  /gpus/{pci_address}/bind:
+    parameters:
+      - name: pci_address
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [gpus]
+      summary: Bind a host GPU to vfio-pci for passthrough. Requires `gpu_write`.
+      requestBody: { $ref: "#/components/requestBodies/BindGpuRequest" }
+      responses:
+        "202": { $ref: "#/components/responses/GpuDevice" }
+
+  /metrics/node:
+    get:
+      tags: [metrics]
+      summary: Current node metrics. Requires `metrics_read`.
+      responses:
+        "200": { $ref: "#/components/responses/NodeMetrics" }
+  /metrics/stream:
+    get:
+      tags: [metrics]
+      summary: >
+        Server-Sent Events stream of `MetricsEvent` frames (node + guests).
+        Requires `metrics_read`.
+      responses:
+        "200":
+          description: text/event-stream of MetricsEvent frames.
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/MetricsEvent" }
+
+# ---------------------------------------------------------------------------
+# Components. Schemas are summarised; the Rust types in `src/` are canonical.
+# ---------------------------------------------------------------------------
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/ResourceId" }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1 }
+
+  schemas:
+    ResourceId: { type: string, description: "Opaque UUID-v4 resource id." }
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [validation, unauthorized, forbidden, not_found, conflict, hypervisor_error, internal]
+        message: { type: string }
+        details: { type: array, items: { type: object } }
+        request_id: { type: string }
+    # The following are documented in full by the generated bindings.
+    HealthStatus: { type: object }
+    LoginRequest: { type: object }
+    LoginResponse: { type: object }
+    CurrentUser: { type: object }
+    Vm: { type: object }
+    VmSummary: { type: object }
+    CreateVmRequest: { type: object }
+    UpdateVmRequest: { type: object }
+    VmPowerRequest: { type: object }
+    ConsoleTicket: { type: object }
+    Lxc: { type: object }
+    LxcSummary: { type: object }
+    CreateLxcRequest: { type: object }
+    UpdateLxcRequest: { type: object }
+    LxcPowerRequest: { type: object }
+    Pool: { type: object }
+    Dataset: { type: object }
+    Snapshot: { type: object }
+    CreateDatasetRequest: { type: object }
+    CreateSnapshotRequest: { type: object }
+    CloneSnapshotRequest: { type: object }
+    Bridge: { type: object }
+    Vlan: { type: object }
+    CreateBridgeRequest: { type: object }
+    CreateVlanRequest: { type: object }
+    GpuDevice: { type: object }
+    BindGpuRequest: { type: object }
+    NodeMetrics: { type: object }
+    MetricsEvent: { type: object }
+
+  parameters_note: "See src/*.rs for authoritative field-level definitions."
+
+  requestBodies:
+    LoginRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LoginRequest" } } } }
+    CreateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVmRequest" } } } }
+    UpdateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/UpdateVmRequest" } } } }
+    VmPowerRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/VmPowerRequest" } } } }
+    CreateLxcRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateLxcRequest" } } } }
+    UpdateLxcRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/UpdateLxcRequest" } } } }
+    LxcPowerRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LxcPowerRequest" } } } }
+    CreateDatasetRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateDatasetRequest" } } } }
+    CreateSnapshotRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateSnapshotRequest" } } } }
+    CloneSnapshotRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CloneSnapshotRequest" } } } }
+    CreateBridgeRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateBridgeRequest" } } } }
+    CreateVlanRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVlanRequest" } } } }
+    BindGpuRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BindGpuRequest" } } } }
+
+  responses:
+    Error:
+      description: Error envelope.
+      content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+    HealthStatus:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/HealthStatus" } } }
+    LoginResponse:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/LoginResponse" } } }
+    CurrentUser:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/CurrentUser" } } }
+    Vm:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Vm" } } }
+    VmPage:
+      description: OK
+      content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/VmSummary" } } } } } }
+    ConsoleTicket:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/ConsoleTicket" } } }
+    Lxc:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Lxc" } } }
+    LxcPage:
+      description: OK
+      content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/LxcSummary" } } } } } }
+    PoolList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Pool" } } } }
+    DatasetList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Dataset" } } } }
+    Dataset:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Dataset" } } }
+    SnapshotList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Snapshot" } } } }
+    Snapshot:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Snapshot" } } }
+    BridgeList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Bridge" } } } }
+    Bridge:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Bridge" } } }
+    VlanList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Vlan" } } } }
+    Vlan:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/Vlan" } } }
+    GpuList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/GpuDevice" } } } }
+    GpuDevice:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/GpuDevice" } } }
+    NodeMetrics:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/NodeMetrics" } } }

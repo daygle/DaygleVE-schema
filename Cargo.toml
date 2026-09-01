@@ -1,0 +1,18 @@
+[package]
+name = "daygleve-schema"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Shared API type definitions for the DaygleVE virtualization platform. Types only — no business logic, no UI."
+repository = "https://github.com/daygle/DaygleVE-schema"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+typeshare = "1"
+
+# Types-only crate. This crate MUST NOT depend on any web framework,
+# database, hypervisor, or UI library. It defines request/response shapes,
+# enums, error formats and versioning rules that are shared by
+# DaygleVE-backend (Rust) and DaygleVE-frontend (TypeScript, via generated
+# bindings). See docs/VERSIONING.md for the compatibility contract.

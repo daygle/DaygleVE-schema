@@ -1,0 +1,19 @@
+{
+  "name": "@daygleve/schema",
+  "version": "0.1.0",
+  "description": "Shared API types for the DaygleVE virtualization platform (generated TypeScript bindings).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daygle/DaygleVE-schema"
+  },
+  "sideEffects": false
+}
