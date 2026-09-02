@@ -1,0 +1,24 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Verify the crate compiles
+        run: cargo build --release
+      - name: Package TypeScript bindings
+        run: tar -czf "daygleve-schema-ts-${{ github.ref_name }}.tar.gz" -C generated/typescript index.ts
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: daygleve-schema-ts-*.tar.gz
+          generate_release_notes: true
