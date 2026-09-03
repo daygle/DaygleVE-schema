@@ -382,7 +382,7 @@ export interface NetworkShare {
   name: string;
   share_type: ShareType;
   server: string;
-  export: string;
+  export_path: string;
   mount_point: string;
   state: ShareState;
   read_only: boolean;
@@ -397,7 +397,7 @@ export interface CreateShareRequest {
   name: string;
   share_type: ShareType;
   server: string;
-  export: string;
+  export_path: string;
   options?: string;
   username?: string;
   password?: string;

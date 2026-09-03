@@ -44,8 +44,10 @@ pub struct NetworkShare {
     pub share_type: ShareType,
     /// Server host or IP address.
     pub server: String,
-    /// NFS export path (`/export/isos`) or CIFS share name (`isos`).
-    pub export: String,
+    /// NFS export path (`/export/isos`) or CIFS share name (`isos`). Named
+    /// `export_path` rather than `export` because `export` is a reserved word
+    /// in JavaScript/TypeScript modules and awkward for API consumers.
+    pub export_path: String,
     /// Absolute mount point on the node.
     pub mount_point: String,
     pub state: ShareState,
@@ -66,15 +68,19 @@ pub struct NetworkShare {
 }
 
 /// Body for `POST /api/v1/storage/shares` — add and mount a network share.
+///
+/// `Debug` is implemented by hand (not derived) so the CIFS `password` is never
+/// printed if a request body is ever logged.
 #[typeshare]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateShareRequest {
     pub name: String,
     pub share_type: ShareType,
     /// Server host or IP address.
     pub server: String,
-    /// NFS export path (`/export/isos`) or CIFS share name (`isos`).
-    pub export: String,
+    /// NFS export path (`/export/isos`) or CIFS share name (`isos`). Named
+    /// `export_path` rather than `export` (a reserved word in JS/TS modules).
+    pub export_path: String,
     /// Extra comma-separated mount options, e.g. `vers=4.1` (NFS) or `vers=3.0`
     /// (CIFS). Credential options are supplied via the fields below, not here.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -89,4 +95,20 @@ pub struct CreateShareRequest {
     /// CIFS domain / workgroup.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub domain: Option<String>,
+}
+
+impl std::fmt::Debug for CreateShareRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CreateShareRequest")
+            .field("name", &self.name)
+            .field("share_type", &self.share_type)
+            .field("server", &self.server)
+            .field("export_path", &self.export_path)
+            .field("options", &self.options)
+            .field("username", &self.username)
+            // Never print the password, even via {:?}.
+            .field("password", &self.password.as_ref().map(|_| "<redacted>"))
+            .field("domain", &self.domain)
+            .finish()
+    }
 }
