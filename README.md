@@ -1,9 +1,18 @@
-# DaygleVE-schema
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/daygleve-logo-dark.svg">
+    <img alt="DaygleVE" src="assets/brand/daygleve-logo.svg" width="320" height="77">
+  </picture>
+</p>
 
-Shared API type definitions for the [DaygleVE](https://github.com/daygle)
-single-node virtualization platform. This repository is the **single source of
-truth** for every request/response body, enum and error shape that crosses the
-API boundary between the backend and the frontend.
+<h1 align="center">DaygleVE-schema</h1>
+
+<p align="center">
+Shared API type definitions for the <a href="https://github.com/daygle">DaygleVE</a>
+single-node virtualization platform — the <strong>single source of truth</strong> for
+every request/response body, enum and error shape that crosses the API boundary
+between the backend and the frontend.
+</p>
 
 ```
 ┌────────────────────┐         imports Rust crate          ┌────────────────────┐
