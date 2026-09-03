@@ -94,6 +94,20 @@ pub enum NicModel {
     Rtl8139,
 }
 
+/// An installer/live ISO available on the host that can be attached to a VM as
+/// virtual install media. Enumerated by `GET /api/v1/vms/iso-images` from the
+/// node's ISO library; a VM's `cdrom` field holds the chosen image's `path`.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct IsoImage {
+    /// File name, e.g. `debian-13.0-amd64-netinst.iso`.
+    pub name: String,
+    /// Absolute host path, e.g. `/var/lib/daygleve/isos/debian-13.0-amd64-netinst.iso`.
+    /// This is the value to send as a VM's `cdrom`.
+    pub path: String,
+    pub size_bytes: u64,
+}
+
 /// Compact VM record for list views.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -121,6 +135,11 @@ pub struct Vm {
     /// GPUs passed through to this VM, if any.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gpus: Vec<GpuAssignment>,
+    /// Host path of an install ISO attached as a virtual CD-ROM, if any. When
+    /// set, the VM boots from the CD-ROM first (so a guest OS can be installed)
+    /// and falls back to disk; eject it once the OS is installed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cdrom: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub created_at: Timestamp,
@@ -140,6 +159,11 @@ pub struct CreateVmRequest {
     pub nics: Vec<VmNic>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub gpus: Vec<GpuAssignment>,
+    /// Host path of an install ISO to attach as a virtual CD-ROM. Must be one
+    /// of the images returned by `GET /api/v1/vms/iso-images`. When set the VM
+    /// boots from it first so a guest OS can be installed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cdrom: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// Start the VM immediately after creation.
@@ -158,6 +182,13 @@ pub struct UpdateVmRequest {
     pub vcpus: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub memory_mib: Option<u64>,
+    /// Attach or replace the install ISO with this host path (one of the images
+    /// from `GET /api/v1/vms/iso-images`). Ignored when `eject_cdrom` is true.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cdrom: Option<String>,
+    /// Eject any attached install ISO. Takes precedence over `cdrom`.
+    #[serde(default)]
+    pub eject_cdrom: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }

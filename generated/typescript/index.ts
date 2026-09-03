@@ -158,6 +158,17 @@ export type DiskBus = "virtio" | "scsi" | "sata";
 
 export type NicModel = "virtio" | "e1000" | "rtl8139";
 
+/**
+ * An installer/live ISO available on the host that can be attached to a VM as
+ * virtual install media. Enumerated by `GET /api/v1/vms/iso-images` from the
+ * node's ISO library; a VM's `cdrom` field holds the chosen image's `path`.
+ */
+export interface IsoImage {
+  name: string;
+  path: string;
+  size_bytes: number;
+}
+
 export interface VmDisk {
   dataset: string;
   size_gib: number;
@@ -190,6 +201,7 @@ export interface Vm {
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
+  cdrom?: string;
   description?: string;
   created_at: Timestamp;
   updated_at?: Timestamp;
@@ -203,6 +215,7 @@ export interface CreateVmRequest {
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
+  cdrom?: string;
   description?: string;
   start: boolean;
 }
@@ -211,6 +224,8 @@ export interface UpdateVmRequest {
   name?: string;
   vcpus?: number;
   memory_mib?: number;
+  cdrom?: string;
+  eject_cdrom: boolean;
   description?: string;
 }
 
