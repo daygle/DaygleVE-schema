@@ -251,6 +251,9 @@ export interface UpdateVmRequest {
   name?: string;
   vcpus?: number;
   memory_mib?: number;
+  firmware?: Firmware;
+  disks?: VmDisk[];
+  nics?: VmNic[];
   cdrom?: string;
   eject_cdrom: boolean;
   description?: string;

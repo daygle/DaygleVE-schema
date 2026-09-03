@@ -186,6 +186,18 @@ pub struct UpdateVmRequest {
     pub vcpus: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub memory_mib: Option<u64>,
+    /// Firmware/boot mode. Changing it requires the VM to be stopped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub firmware: Option<Firmware>,
+    /// Replace the VM's disks with this set (declarative). New datasets are
+    /// provisioned; removing a disk detaches it but never destroys its data.
+    /// Requires the VM to be stopped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disks: Option<Vec<VmDisk>>,
+    /// Replace the VM's NICs with this set (declarative). Requires the VM to be
+    /// stopped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub nics: Option<Vec<VmNic>>,
     /// Attach or replace the install ISO with this host path (one of the images
     /// from `GET /api/v1/vms/iso-images`). Ignored when `eject_cdrom` is true.
     #[serde(default, skip_serializing_if = "Option::is_none")]
