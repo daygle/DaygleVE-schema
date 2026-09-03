@@ -85,4 +85,73 @@ pub struct CurrentUser {
     pub user: User,
     /// Flattened, de-duplicated permission set granted by the user's roles.
     pub permissions: Vec<Permission>,
+    /// True when the account is still on a seeded/temporary password and must
+    /// set a new one (the UI should force a password change).
+    #[serde(default)]
+    pub must_change_password: bool,
+}
+
+/// Body for `POST /api/v1/users` — create a user account.
+///
+/// `Debug` is hand-written so the plaintext `password` is never printed.
+#[typeshare]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub password: String,
+    /// Roles to grant; the effective permission set is their union.
+    pub roles: Vec<Role>,
+}
+
+impl std::fmt::Debug for CreateUserRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CreateUserRequest")
+            .field("username", &self.username)
+            .field("password", &"<redacted>")
+            .field("roles", &self.roles)
+            .finish()
+    }
+}
+
+/// Body for `PATCH /api/v1/users/{id}` — update a user's roles and/or reset
+/// their password (admin action). Only present fields are applied.
+///
+/// `Debug` is hand-written so a reset `password` is never printed.
+#[typeshare]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct UpdateUserRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub roles: Option<Vec<Role>>,
+    /// Reset the account password to this value.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub password: Option<String>,
+}
+
+impl std::fmt::Debug for UpdateUserRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("UpdateUserRequest")
+            .field("roles", &self.roles)
+            .field("password", &self.password.as_ref().map(|_| "<redacted>"))
+            .finish()
+    }
+}
+
+/// Body for `POST /api/v1/auth/change-password` — the caller changes their own
+/// password.
+///
+/// `Debug` is hand-written so neither password is printed.
+#[typeshare]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ChangePasswordRequest {
+    pub current_password: String,
+    pub new_password: String,
+}
+
+impl std::fmt::Debug for ChangePasswordRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ChangePasswordRequest")
+            .field("current_password", &"<redacted>")
+            .field("new_password", &"<redacted>")
+            .finish()
+    }
 }
