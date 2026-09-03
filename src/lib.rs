@@ -34,6 +34,7 @@ pub mod gpu;
 pub mod lxc;
 pub mod metrics;
 pub mod network;
+pub mod share;
 pub mod storage;
 pub mod vm;
 

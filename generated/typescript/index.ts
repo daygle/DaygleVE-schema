@@ -167,6 +167,7 @@ export interface IsoImage {
   name: string;
   path: string;
   size_bytes: number;
+  storage: string;
 }
 
 export interface VmDisk {
@@ -365,6 +366,42 @@ export interface CreateSnapshotRequest {
 
 export interface CloneSnapshotRequest {
   target: string;
+}
+
+// ---------------------------------------------------------------------------
+// share
+// ---------------------------------------------------------------------------
+
+export type ShareType = "nfs" | "cifs";
+
+export type ShareState = "connected" | "disconnected" | "error";
+
+/** A configured network share. */
+export interface NetworkShare {
+  id: ResourceId;
+  name: string;
+  share_type: ShareType;
+  server: string;
+  export_path: string;
+  mount_point: string;
+  state: ShareState;
+  read_only: boolean;
+  username?: string;
+  options?: string;
+  last_error?: string;
+  created_at: Timestamp;
+}
+
+/** Body for `POST /api/v1/storage/shares` — add and mount a network share. */
+export interface CreateShareRequest {
+  name: string;
+  share_type: ShareType;
+  server: string;
+  export_path: string;
+  options?: string;
+  username?: string;
+  password?: string;
+  domain?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -106,6 +106,10 @@ pub struct IsoImage {
     /// This is the value to send as a VM's `cdrom`.
     pub path: String,
     pub size_bytes: u64,
+    /// Storage this ISO was found on: the reserved value `local` for the node's
+    /// built-in library, otherwise the name of the network share it lives on.
+    /// The backend rejects `local` as a share name so this is unambiguous.
+    pub storage: String,
 }
 
 /// Compact VM record for list views.
