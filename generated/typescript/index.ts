@@ -255,7 +255,7 @@ export interface UpdateVmRequest {
   disks?: VmDisk[];
   nics?: VmNic[];
   cdrom?: string;
-  eject_cdrom: boolean;
+  eject_cdrom?: boolean;
   description?: string;
 }
 

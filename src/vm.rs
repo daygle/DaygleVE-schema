@@ -202,9 +202,10 @@ pub struct UpdateVmRequest {
     /// from `GET /api/v1/vms/iso-images`). Ignored when `eject_cdrom` is true.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cdrom: Option<String>,
-    /// Eject any attached install ISO. Takes precedence over `cdrom`.
-    #[serde(default)]
-    pub eject_cdrom: bool,
+    /// Eject any attached install ISO (`Some(true)`). Takes precedence over
+    /// `cdrom`. Optional like every other field — omitting it means "no change".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub eject_cdrom: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
