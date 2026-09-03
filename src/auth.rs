@@ -85,4 +85,39 @@ pub struct CurrentUser {
     pub user: User,
     /// Flattened, de-duplicated permission set granted by the user's roles.
     pub permissions: Vec<Permission>,
+    /// True when the account is still on a seeded/temporary password and must
+    /// set a new one (the UI should force a password change).
+    #[serde(default)]
+    pub must_change_password: bool,
+}
+
+/// Body for `POST /api/v1/users` — create a user account.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub password: String,
+    /// Roles to grant; the effective permission set is their union.
+    pub roles: Vec<Role>,
+}
+
+/// Body for `PATCH /api/v1/users/{id}` — update a user's roles and/or reset
+/// their password (admin action). Only present fields are applied.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct UpdateUserRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub roles: Option<Vec<Role>>,
+    /// Reset the account password to this value.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub password: Option<String>,
+}
+
+/// Body for `POST /api/v1/auth/change-password` — the caller changes their own
+/// password.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ChangePasswordRequest {
+    pub current_password: String,
+    pub new_password: String,
 }

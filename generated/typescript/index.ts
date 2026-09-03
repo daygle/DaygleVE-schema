@@ -107,6 +107,32 @@ export interface LoginResponse {
 export interface CurrentUser {
   user: User;
   permissions: Permission[];
+  must_change_password?: boolean;
+}
+
+/** Body for `POST /api/v1/users` — create a user account. */
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  roles: Role[];
+}
+
+/**
+ * Body for `PATCH /api/v1/users/{id}` — update a user's roles and/or reset
+ * their password (admin action). Only present fields are applied.
+ */
+export interface UpdateUserRequest {
+  roles?: Role[];
+  password?: string;
+}
+
+/**
+ * Body for `POST /api/v1/auth/change-password` — the caller changes their own
+ * password.
+ */
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
 }
 
 // ---------------------------------------------------------------------------
