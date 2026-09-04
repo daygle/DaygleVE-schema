@@ -71,6 +71,23 @@ paths:
         "200": { $ref: "#/components/responses/OperationList" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+  /operations/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [operations]
+      summary: Read one operation for polling an asynchronous job.
+      responses:
+        "200": { $ref: "#/components/responses/Operation" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+  /operations/reconcile:
+    post:
+      tags: [operations]
+      summary: Start an asynchronous host-state reconciliation scan. Requires `operations_write`.
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
 
   /auth/change-password:
     post:
@@ -342,7 +359,7 @@ components:
         must_change_password: { type: boolean }
     Permission:
       type: string
-      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, operations_read, metrics_read, user_admin]
+      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, operations_read, operations_write, metrics_read, user_admin]
     OperationStatus:
       type: string
       enum: [queued, running, succeeded, failed, needs_review, cancelled]
@@ -353,6 +370,7 @@ components:
         id: { $ref: "#/components/schemas/ResourceId" }
         kind: { type: string }
         status: { $ref: "#/components/schemas/OperationStatus" }
+        progress_pct: { type: integer, minimum: 0, maximum: 100 }
         resource_type: { type: string }
         resource_id: { $ref: "#/components/schemas/ResourceId" }
         created_at: { type: string, format: date-time }
@@ -444,6 +462,9 @@ components:
     OperationList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/OperationRecord" } } } }
+    Operation:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/OperationRecord" } } }
     PoolList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Pool" } } } }

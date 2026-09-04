@@ -26,6 +26,9 @@ pub struct OperationRecord {
     /// Stable operation name, e.g. `vm.create` or `network.create_bridge`.
     pub kind: String,
     pub status: OperationStatus,
+    /// Optional progress percentage for asynchronous jobs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub progress_pct: Option<u8>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resource_type: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

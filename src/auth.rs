@@ -95,6 +95,8 @@ pub enum Permission {
     MetricsRead,
     /// View durable host-operation history and crash-recovery records.
     OperationsRead,
+    /// Start operator-triggered host reconciliation jobs.
+    OperationsWrite,
     UserAdmin,
 }
 

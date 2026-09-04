@@ -84,6 +84,7 @@ export type Permission =
   | "gpu_write"
   | "metrics_read"
   | "operations_read"
+  | "operations_write"
   | "user_admin";
 
 export interface LoginRequest {
@@ -152,6 +153,7 @@ export interface OperationRecord {
   id: ResourceId;
   kind: string;
   status: OperationStatus;
+  progress_pct?: number;
   resource_type?: string;
   resource_id?: ResourceId;
   created_at: Timestamp;
