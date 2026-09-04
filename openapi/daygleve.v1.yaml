@@ -504,6 +504,7 @@ components:
             required: [name]
             properties:
               name: { type: string, minLength: 1 }
+              description: { type: string }
     LoginRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LoginRequest" } } } }
     CreateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVmRequest" } } } }
     UpdateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/UpdateVmRequest" } } } }

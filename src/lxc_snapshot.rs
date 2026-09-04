@@ -24,6 +24,8 @@ pub struct LxcSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateLxcSnapshotRequest {
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 /// Full snapshot record returned by the API (same shape as LxcSnapshot).

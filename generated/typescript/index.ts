@@ -414,6 +414,7 @@ export interface LxcSnapshot {
 
 export interface CreateLxcSnapshotRequest {
   name: string;
+  description?: string;
 }
 
 // ---------------------------------------------------------------------------
