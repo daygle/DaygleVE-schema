@@ -289,6 +289,19 @@ export interface CreateVmSnapshotRequest {
   description?: string;
 }
 
+/**
+ * Body for `POST /api/v1/vms/{id}/clone` — copy an existing VM into a new one.
+ * The clone gets a fresh id and freshly-generated NIC MACs; its disks are ZFS
+ * clones of the source's disks (taken from a snapshot of the source). Any GPU
+ * passthrough and attached install ISO are dropped (they can't be shared). The
+ * clone is created stopped.
+ */
+export interface CloneVmRequest {
+  name: string;
+  full: boolean;
+  description?: string;
+}
+
 // ---------------------------------------------------------------------------
 // lxc
 // ---------------------------------------------------------------------------

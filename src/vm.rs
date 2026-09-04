@@ -249,9 +249,29 @@ pub struct VmSnapshot {
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateVmSnapshotRequest {
-    /// Snapshot name; must be a valid ZFS snapshot tag (letters, digits and
-    /// `_ - . :`) and unique within the VM.
+    /// Snapshot name; must be a valid ZFS snapshot tag — letters, digits, and
+    /// the punctuation `_`, `-`, `.`, `:` (no spaces) — and unique within the VM.
     pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
+/// Body for `POST /api/v1/vms/{id}/clone` — copy an existing VM into a new one.
+/// The clone gets a fresh id and freshly-generated NIC MACs; its disks are ZFS
+/// clones of the source's disks (taken from a snapshot of the source). Any GPU
+/// passthrough and attached install ISO are dropped (they can't be shared). The
+/// clone is created stopped.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CloneVmRequest {
+    /// Name for the new VM; must be unique and host-safe (same rules as create).
+    pub name: String,
+    /// When `true`, the clone's disks are promoted so they no longer depend on
+    /// the source's snapshot (an independent "full" clone). When `false`
+    /// (default), the disks stay as linked clones — fast and space-efficient, but
+    /// tied to the source until promoted.
+    #[serde(default)]
+    pub full: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
