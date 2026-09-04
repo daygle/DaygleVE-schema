@@ -403,6 +403,19 @@ export interface LxcPowerRequest {
   action: LxcPowerAction;
 }
 
+export interface LxcSnapshot {
+  id: ResourceId;
+  name: string;
+  container_id: ResourceId;
+  dataset: string;
+  used_bytes: number;
+  created_at: Timestamp;
+}
+
+export interface CreateLxcSnapshotRequest {
+  name: string;
+}
+
 // ---------------------------------------------------------------------------
 // storage
 // ---------------------------------------------------------------------------

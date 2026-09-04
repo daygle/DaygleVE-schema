@@ -206,6 +206,43 @@ paths:
       requestBody: { $ref: "#/components/requestBodies/LxcPowerRequest" }
       responses:
         "202": { $ref: "#/components/responses/Lxc" }
+  /containers/{id}/snapshots:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [containers]
+      summary: List snapshots of an LXC root filesystem. Requires `lxc_read`.
+      responses:
+        "200": { $ref: "#/components/responses/LxcSnapshotList" }
+    post:
+      tags: [containers]
+      summary: Create an LXC root filesystem snapshot. Requires `lxc_write`.
+      requestBody: { $ref: "#/components/requestBodies/CreateLxcSnapshotRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/LxcSnapshot" }
+  /containers/{id}/snapshots/{name}:
+    parameters:
+      - { $ref: "#/components/parameters/Id" }
+      - name: name
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      tags: [containers]
+      summary: Delete an LXC snapshot. Requires `lxc_write`.
+      responses:
+        "204": { description: Deleted. }
+  /containers/{id}/snapshots/{name}/rollback:
+    parameters:
+      - { $ref: "#/components/parameters/Id" }
+      - name: name
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [containers]
+      summary: Roll an LXC root filesystem back to a snapshot. Requires `lxc_write`.
+      responses:
+        "204": { description: Rolled back. }
 
   /storage/pools:
     get:
@@ -430,6 +467,16 @@ components:
     CreateLxcRequest: { type: object }
     UpdateLxcRequest: { type: object }
     LxcPowerRequest: { type: object }
+    LxcSnapshot:
+      type: object
+      required: [id, name, container_id, dataset, used_bytes, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        name: { type: string }
+        container_id: { $ref: "#/components/schemas/ResourceId" }
+        dataset: { type: string }
+        used_bytes: { type: integer, format: uint64 }
+        created_at: { type: string, format: date-time }
     Pool: { type: object }
     Dataset: { type: object }
     Snapshot: { type: object }
@@ -448,6 +495,15 @@ components:
   parameters_note: "See src/*.rs for authoritative field-level definitions."
 
   requestBodies:
+    CreateLxcSnapshotRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [name]
+            properties:
+              name: { type: string, minLength: 1 }
     LoginRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LoginRequest" } } } }
     CreateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVmRequest" } } } }
     UpdateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/UpdateVmRequest" } } } }
@@ -491,6 +547,12 @@ components:
     LxcPage:
       description: OK
       content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/LxcSummary" } } } } } }
+    LxcSnapshot:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/LxcSnapshot" } } }
+    LxcSnapshotList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/LxcSnapshot" } } } }
     OperationList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/OperationRecord" } } } }
