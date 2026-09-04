@@ -108,10 +108,12 @@ paths:
         "200": { $ref: "#/components/responses/VmPage" }
     post:
       tags: [vms]
-      summary: Create a virtual machine. Requires `vm_write`.
+      summary: >
+        Create a virtual machine asynchronously. Returns a 202 with the operation record;
+        poll `GET /operations/{id}` until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateVmRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Vm" }
+        "202": { $ref: "#/components/responses/Operation" }
         "400": { $ref: "#/components/responses/Error" }
   /vms/{id}:
     parameters: [ { $ref: "#/components/parameters/Id" } ]
@@ -132,6 +134,16 @@ paths:
       summary: Delete a virtual machine. Requires `vm_write`.
       responses:
         "204": { description: Deleted. }
+  /vms/{id}/clone:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [vms]
+      summary: >
+        Create a stopped VM clone asynchronously. Returns a 202 with the operation
+        record; poll until it reaches a terminal state.
+      requestBody: { $ref: "#/components/requestBodies/CloneVmRequest" }
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
   /vms/{id}/power:
     parameters: [ { $ref: "#/components/parameters/Id" } ]
     post:
@@ -157,10 +169,12 @@ paths:
         "200": { $ref: "#/components/responses/LxcPage" }
     post:
       tags: [containers]
-      summary: Create an LXC container. Requires `lxc_write`.
+      summary: >
+        Create an LXC container asynchronously. Returns a 202 with the operation
+        record; poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateLxcRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Lxc" }
+        "202": { $ref: "#/components/responses/Operation" }
   /containers/{id}:
     parameters: [ { $ref: "#/components/parameters/Id" } ]
     get:
@@ -202,10 +216,12 @@ paths:
         "200": { $ref: "#/components/responses/DatasetList" }
     post:
       tags: [storage]
-      summary: Create a dataset or zvol. Requires `storage_write`.
+      summary: >
+        Create a dataset or zvol asynchronously. Returns a 202 with the operation
+        record; poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateDatasetRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Dataset" }
+        "202": { $ref: "#/components/responses/Operation" }
   /storage/datasets/{id}/snapshots:
     parameters: [ { $ref: "#/components/parameters/Id" } ]
     get:
@@ -215,18 +231,22 @@ paths:
         "200": { $ref: "#/components/responses/SnapshotList" }
     post:
       tags: [storage]
-      summary: Snapshot a dataset. Requires `storage_write`.
+      summary: >
+        Snapshot a dataset asynchronously. Returns a 202 with the operation record;
+        poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateSnapshotRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Snapshot" }
+        "202": { $ref: "#/components/responses/Operation" }
   /storage/snapshots/{id}/clone:
     parameters: [ { $ref: "#/components/parameters/Id" } ]
     post:
       tags: [storage]
-      summary: Clone a snapshot into a new dataset. Requires `storage_write`.
+      summary: >
+        Clone a snapshot into a new dataset asynchronously. Returns a 202 with the
+        operation record; poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CloneSnapshotRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Dataset" }
+        "202": { $ref: "#/components/responses/Operation" }
 
   /network/bridges:
     get:
@@ -236,10 +256,12 @@ paths:
         "200": { $ref: "#/components/responses/BridgeList" }
     post:
       tags: [network]
-      summary: Create a bridge. Requires `network_write`.
+      summary: >
+        Create a bridge asynchronously. Returns a 202 with the operation record;
+        poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateBridgeRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Bridge" }
+        "202": { $ref: "#/components/responses/Operation" }
   /network/vlans:
     get:
       tags: [network]
@@ -248,10 +270,12 @@ paths:
         "200": { $ref: "#/components/responses/VlanList" }
     post:
       tags: [network]
-      summary: Create a VLAN. Requires `network_write`.
+      summary: >
+        Create a VLAN asynchronously. Returns a 202 with the operation record;
+        poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/CreateVlanRequest" }
       responses:
-        "201": { $ref: "#/components/responses/Vlan" }
+        "202": { $ref: "#/components/responses/Operation" }
 
   /gpus:
     get:
@@ -267,10 +291,12 @@ paths:
         schema: { type: string }
     post:
       tags: [gpus]
-      summary: Bind a host GPU to vfio-pci for passthrough. Requires `gpu_write`.
+      summary: >
+        Bind a host GPU to vfio-pci for passthrough asynchronously. Returns a 202
+        with the operation record; poll until it reaches a terminal state.
       requestBody: { $ref: "#/components/requestBodies/BindGpuRequest" }
       responses:
-        "202": { $ref: "#/components/responses/GpuDevice" }
+        "202": { $ref: "#/components/responses/Operation" }
 
   /metrics/node:
     get:
@@ -373,6 +399,7 @@ components:
         progress_pct: { type: integer, minimum: 0, maximum: 100 }
         resource_type: { type: string }
         resource_id: { $ref: "#/components/schemas/ResourceId" }
+        result_id: { $ref: "#/components/schemas/ResourceId", description: "ID of the resource created or modified by this operation." }
         created_at: { type: string, format: date-time }
         started_at: { type: string, format: date-time }
         finished_at: { type: string, format: date-time }

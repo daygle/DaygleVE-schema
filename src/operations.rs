@@ -33,6 +33,10 @@ pub struct OperationRecord {
     pub resource_type: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub resource_id: Option<ResourceId>,
+    /// ID of the resource created or modified by this operation, populated
+    /// once the operation reaches a terminal state.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<ResourceId>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub started_at: Option<Timestamp>,

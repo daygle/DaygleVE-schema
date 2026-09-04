@@ -156,6 +156,7 @@ export interface OperationRecord {
   progress_pct?: number;
   resource_type?: string;
   resource_id?: ResourceId;
+  result_id?: ResourceId;
   created_at: Timestamp;
   started_at?: Timestamp;
   finished_at?: Timestamp;
