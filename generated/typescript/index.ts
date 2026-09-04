@@ -162,6 +162,7 @@ export interface OperationRecord {
   finished_at?: Timestamp;
   message?: string;
   error?: string;
+  drift?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -46,4 +46,8 @@ pub struct OperationRecord {
     pub message: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+    /// Discrepancies found during a reconciliation scan, e.g. orphaned records
+    /// or stale states. Populated when the operation is a `host.reconcile` scan.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub drift: Option<String>,
 }
