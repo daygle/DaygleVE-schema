@@ -33,6 +33,7 @@ pub mod auth;
 pub mod common;
 pub mod gpu;
 pub mod lxc;
+pub mod lxc_snapshot;
 pub mod metrics;
 pub mod network;
 pub mod operations;
