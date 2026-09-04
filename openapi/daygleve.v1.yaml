@@ -55,6 +55,22 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/CurrentUser" }
         "401": { $ref: "#/components/responses/Error" }
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Revoke the current bearer session.
+      responses:
+        "204": { description: Session revoked. }
+        "401": { $ref: "#/components/responses/Error" }
+  /auth/change-password:
+    post:
+      tags: [auth]
+      summary: Change the current user's password.
+      requestBody: { $ref: "#/components/requestBodies/ChangePasswordRequest" }
+      responses:
+        "204": { description: Password changed. }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
 
   /vms:
     get:
@@ -282,13 +298,50 @@ components:
           type: string
           enum: [validation, unauthorized, forbidden, not_found, conflict, hypervisor_error, internal]
         message: { type: string }
-        details: { type: array, items: { type: object } }
+        details:
+          type: array
+          items: { $ref: "#/components/schemas/FieldError" }
         request_id: { type: string }
+    FieldError:
+      type: object
+      required: [field, message]
+      properties:
+        field: { type: string }
+        message: { type: string }
     # The following are documented in full by the generated bindings.
     HealthStatus: { type: object }
-    LoginRequest: { type: object }
-    LoginResponse: { type: object }
-    CurrentUser: { type: object }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 1, maxLength: 64 }
+        password: { type: string, format: password, minLength: 8 }
+    LoginResponse:
+      type: object
+      required: [token, expires_at, user]
+      properties:
+        token: { type: string }
+        expires_at: { type: string, format: date-time }
+        user: { $ref: "#/components/schemas/User" }
+    CurrentUser:
+      type: object
+      required: [user, permissions, must_change_password]
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        permissions: { type: array, items: { $ref: "#/components/schemas/Permission" } }
+        must_change_password: { type: boolean }
+    Permission:
+      type: string
+      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, metrics_read, user_admin]
+    User:
+      type: object
+      required: [id, username, roles, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        username: { type: string }
+        roles: { type: array, items: { type: string, enum: [admin, operator, viewer] } }
+        created_at: { type: string, format: date-time }
+        last_login_at: { type: string, format: date-time }
     Vm: { type: object }
     VmSummary: { type: object }
     CreateVmRequest: { type: object }
@@ -331,6 +384,7 @@ components:
     CreateBridgeRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateBridgeRequest" } } } }
     CreateVlanRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVlanRequest" } } } }
     BindGpuRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BindGpuRequest" } } } }
+    ChangePasswordRequest: { required: true, content: { application/json: { schema: { type: object, required: [current_password, new_password], properties: { current_password: { type: string, format: password }, new_password: { type: string, format: password, minLength: 8 } } } } } }
 
   responses:
     Error:

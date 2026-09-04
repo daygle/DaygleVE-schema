@@ -16,9 +16,13 @@ jobs:
       - name: Verify the crate compiles
         run: cargo build --release
       - name: Package TypeScript bindings
-        run: tar -czf "daygleve-schema-ts-${{ github.ref_name }}.tar.gz" -C generated/typescript index.ts
+        run: |
+          tar -czf "daygleve-schema-ts-${{ github.ref_name }}.tar.gz" -C generated/typescript index.ts
+          sha256sum daygleve-schema-ts-*.tar.gz > daygleve-schema-ts-${{ github.ref_name }}.sha256
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: daygleve-schema-ts-*.tar.gz
+          files: |
+            daygleve-schema-ts-*.tar.gz
+            daygleve-schema-ts-*.sha256
           generate_release_notes: true

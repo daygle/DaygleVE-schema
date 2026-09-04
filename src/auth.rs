@@ -8,15 +8,24 @@ use crate::common::{ResourceId, Timestamp};
 
 /// Credentials submitted to `POST /api/v1/auth/login`.
 #[typeshare]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
 }
 
+impl std::fmt::Debug for LoginRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LoginRequest")
+            .field("username", &self.username)
+            .field("password", &"<redacted>")
+            .finish()
+    }
+}
+
 /// Successful login response carrying a bearer token and the caller's identity.
 #[typeshare]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LoginResponse {
     /// Opaque bearer token to send as `Authorization: Bearer <token>`.
     pub token: String,
@@ -24,6 +33,16 @@ pub struct LoginResponse {
     pub expires_at: Timestamp,
     /// The authenticated user.
     pub user: User,
+}
+
+impl std::fmt::Debug for LoginResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LoginResponse")
+            .field("token", &"<redacted>")
+            .field("expires_at", &self.expires_at)
+            .field("user", &self.user)
+            .finish()
+    }
 }
 
 /// A platform user account. Never carries secrets — password hashes stay
@@ -87,7 +106,6 @@ pub struct CurrentUser {
     pub permissions: Vec<Permission>,
     /// True when the account is still on a seeded/temporary password and must
     /// set a new one (the UI should force a password change).
-    #[serde(default)]
     pub must_change_password: bool,
 }
 

@@ -107,7 +107,7 @@ export interface LoginResponse {
 export interface CurrentUser {
   user: User;
   permissions: Permission[];
-  must_change_password?: boolean;
+  must_change_password: boolean;
 }
 
 /** Body for `POST /api/v1/users` — create a user account. */
