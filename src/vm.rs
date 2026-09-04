@@ -227,3 +227,31 @@ pub struct ConsoleTicket {
     pub ticket: String,
     pub expires_at: Timestamp,
 }
+
+/// A point-in-time snapshot of a VM, taken across every one of the VM's backing
+/// ZFS datasets under a single name. Enumerated by
+/// `GET /api/v1/vms/{id}/snapshots`; created, rolled back to, and deleted via
+/// the sibling endpoints. The snapshot `name` (the ZFS `@tag`) is unique within
+/// a VM and identifies it in the path.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct VmSnapshot {
+    /// Short name shared by the underlying `dataset@name` snapshots.
+    pub name: String,
+    /// Space uniquely referenced by this snapshot, summed over the VM's disks.
+    pub used_bytes: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    pub created_at: Timestamp,
+}
+
+/// Body for `POST /api/v1/vms/{id}/snapshots` — capture a new VM snapshot.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CreateVmSnapshotRequest {
+    /// Snapshot name; must be a valid ZFS snapshot tag (letters, digits and
+    /// `_ - . :`) and unique within the VM.
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}

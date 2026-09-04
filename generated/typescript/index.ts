@@ -269,6 +269,26 @@ export interface ConsoleTicket {
   expires_at: Timestamp;
 }
 
+/**
+ * A point-in-time snapshot of a VM, taken across every one of the VM's backing
+ * ZFS datasets under a single name. Enumerated by
+ * `GET /api/v1/vms/{id}/snapshots`; created, rolled back to, and deleted via
+ * the sibling endpoints. The snapshot `name` (the ZFS `@tag`) is unique within
+ * a VM and identifies it in the path.
+ */
+export interface VmSnapshot {
+  name: string;
+  used_bytes: number;
+  description?: string;
+  created_at: Timestamp;
+}
+
+/** Body for `POST /api/v1/vms/{id}/snapshots` — capture a new VM snapshot. */
+export interface CreateVmSnapshotRequest {
+  name: string;
+  description?: string;
+}
+
 // ---------------------------------------------------------------------------
 // lxc
 // ---------------------------------------------------------------------------
