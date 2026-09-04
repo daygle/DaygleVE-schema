@@ -93,6 +93,8 @@ pub enum Permission {
     GpuRead,
     GpuWrite,
     MetricsRead,
+    /// View durable host-operation history and crash-recovery records.
+    OperationsRead,
     UserAdmin,
 }
 

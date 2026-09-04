@@ -83,6 +83,7 @@ export type Permission =
   | "gpu_read"
   | "gpu_write"
   | "metrics_read"
+  | "operations_read"
   | "user_admin";
 
 export interface LoginRequest {
@@ -133,6 +134,31 @@ export interface UpdateUserRequest {
 export interface ChangePasswordRequest {
   current_password: string;
   new_password: string;
+}
+
+// ---------------------------------------------------------------------------
+// operations
+// ---------------------------------------------------------------------------
+
+export type OperationStatus =
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "failed"
+  | "needs_review"
+  | "cancelled";
+
+export interface OperationRecord {
+  id: ResourceId;
+  kind: string;
+  status: OperationStatus;
+  resource_type?: string;
+  resource_id?: ResourceId;
+  created_at: Timestamp;
+  started_at?: Timestamp;
+  finished_at?: Timestamp;
+  message?: string;
+  error?: string;
 }
 
 // ---------------------------------------------------------------------------

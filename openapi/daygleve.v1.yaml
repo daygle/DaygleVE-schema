@@ -29,6 +29,7 @@ tags:
   - name: gpus
   - name: metrics
   - name: system
+  - name: operations
 
 paths:
   /health:
@@ -62,6 +63,15 @@ paths:
       responses:
         "204": { description: Session revoked. }
         "401": { $ref: "#/components/responses/Error" }
+  /operations:
+    get:
+      tags: [operations]
+      summary: List durable host operations and crash-recovery records.
+      responses:
+        "200": { $ref: "#/components/responses/OperationList" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
   /auth/change-password:
     post:
       tags: [auth]
@@ -332,7 +342,24 @@ components:
         must_change_password: { type: boolean }
     Permission:
       type: string
-      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, metrics_read, user_admin]
+      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, operations_read, metrics_read, user_admin]
+    OperationStatus:
+      type: string
+      enum: [queued, running, succeeded, failed, needs_review, cancelled]
+    OperationRecord:
+      type: object
+      required: [id, kind, status, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        kind: { type: string }
+        status: { $ref: "#/components/schemas/OperationStatus" }
+        resource_type: { type: string }
+        resource_id: { $ref: "#/components/schemas/ResourceId" }
+        created_at: { type: string, format: date-time }
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time }
+        message: { type: string }
+        error: { type: string }
     User:
       type: object
       required: [id, username, roles, created_at]
@@ -414,6 +441,9 @@ components:
     LxcPage:
       description: OK
       content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/LxcSummary" } } } } } }
+    OperationList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/OperationRecord" } } } }
     PoolList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Pool" } } } }
