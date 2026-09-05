@@ -86,15 +86,36 @@ impl BrokerSplitInventory {
     /// The schema crate stays types-only (no clock access), so the caller
     /// supplies the generation timestamp; the backend passes its own `now_ts()`.
     pub fn current(generated_at: Timestamp) -> Self {
-        Self {
+        Self::for_runtime(generated_at, false)
+    }
+
+    /// Build the inventory for the deployment's configured execution boundary.
+    /// Configuration is deliberately distinct from a host-health check: the
+    /// backend must fail closed if a configured broker cannot be reached, while
+    /// this endpoint reports the intended runtime posture.
+    pub fn for_runtime(generated_at: Timestamp, broker_enabled: bool) -> Self {
+        let mut inventory = Self {
             generated_at,
             current_execution: HostExecution::Api,
             subsystems: broker_subsystems(),
             broker_split_incomplete: true,
             note: Some(
-                "This inventory describes the planned broker split target. The broker itself is not deployed yet; the current values are informational, not enforced.".to_string(),
+                "The broker split is not complete; verify the broker service and real-host policy before production use.".to_string(),
             ),
+        };
+        if broker_enabled {
+            inventory.current_execution = HostExecution::Broker;
+            inventory.broker_split_incomplete = false;
+            inventory.note = Some(
+                "Privileged host requests are configured to use the root-owned broker; real-host systemd/AppArmor validation remains required.".to_string(),
+            );
+            for subsystem in &mut inventory.subsystems {
+                subsystem.mode = BrokerMode::Delegated;
+                subsystem.execution = HostExecution::Broker;
+                subsystem.current_actions.clear();
+            }
         }
+        inventory
     }
 }
 
@@ -190,6 +211,18 @@ mod tests {
         assert_eq!(inventory.generated_at, "2026-09-05T00:00:00Z");
         assert!(!inventory.subsystems.is_empty());
         assert!(inventory.subsystems.iter().all(|s| s.broker_required));
+    }
+
+    #[test]
+    fn enabled_runtime_reports_delegation() {
+        let inventory = BrokerSplitInventory::for_runtime("2026-09-05T00:00:00Z".to_string(), true);
+        assert!(!inventory.broker_split_incomplete);
+        assert_eq!(inventory.current_execution, HostExecution::Broker);
+        assert!(inventory.subsystems.iter().all(|s| {
+            s.mode == BrokerMode::Delegated
+                && s.execution == HostExecution::Broker
+                && s.current_actions.is_empty()
+        }));
     }
 
     #[test]
