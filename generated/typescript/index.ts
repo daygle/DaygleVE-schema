@@ -151,10 +151,52 @@ export type OperationStatus =
   | "needs_review"
   | "cancelled";
 
+export type ReconciliationMode = "dry_run" | "repair";
+
+export interface ReconcileRequest {
+  mode: ReconciliationMode;
+  approval_id?: ResourceId;
+  quarantine_unmanaged?: boolean;
+}
+
+export type ReconciliationFindingKind = "missing_from_host" | "unmanaged_host" | "state_drift";
+
+export interface ReconciliationFinding {
+  resource_type: string;
+  resource_id: string;
+  host_id?: string;
+  kind: ReconciliationFindingKind;
+  message: string;
+  repairable: boolean;
+  destructive: boolean;
+}
+
+export type QuarantineStatus = "pending" | "adopted" | "released";
+
+export type QuarantineDecision = "adopt" | "release";
+
+export interface QuarantineDecisionRequest {
+  decision: QuarantineDecision;
+  message?: string;
+}
+
+export interface ReconciliationQuarantineRecord {
+  id: ResourceId;
+  resource_type: string;
+  host_id: string;
+  message: string;
+  status: QuarantineStatus;
+  created_at: Timestamp;
+  decided_at?: Timestamp;
+  decided_by?: ResourceId;
+  decision_message?: string;
+}
+
 export interface OperationRecord {
   id: ResourceId;
   kind: string;
   status: OperationStatus;
+  reconciliation_mode?: ReconciliationMode;
   progress_pct?: number;
   resource_type?: string;
   resource_id?: ResourceId;
@@ -165,6 +207,7 @@ export interface OperationRecord {
   message?: string;
   error?: string;
   drift?: string;
+  findings?: ReconciliationFinding[];
 }
 
 // ---------------------------------------------------------------------------

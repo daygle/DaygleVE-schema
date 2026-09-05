@@ -98,15 +98,43 @@ paths:
     post:
       tags: [operations]
       summary: >
-        Start an asynchronous host-state reconciliation scan. Returns a 202 with
-        the operation record; poll until it reaches a terminal state. The scan
-        compares persisted records to live host state and reports drift findings
-        (e.g. VMs/containers/bridges that exist in one but not the other) without
-        auto-correcting.
+        Start an asynchronous host-state reconciliation scan. Dry runs are
+        read-only and produce findings; repair requires the ID of a successful
+        dry run and never adopts unmanaged resources automatically.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReconcileRequest" }
       responses:
         "202": { $ref: "#/components/responses/Operation" }
         "401": { $ref: "#/components/responses/Error" }
         "403": { $ref: "#/components/responses/Error" }
+
+  /operations/quarantine:
+    get:
+      tags: [operations]
+      summary: List unmanaged host resources awaiting an explicit decision.
+      responses:
+        "200": { $ref: "#/components/responses/QuarantineList" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+  /operations/quarantine/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    patch:
+      tags: [operations]
+      summary: Adopt or release a quarantined unmanaged resource.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuarantineDecisionRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/Quarantine" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
 
   /auth/change-password:
     post:
@@ -521,6 +549,46 @@ components:
     OperationStatus:
       type: string
       enum: [queued, running, succeeded, failed, needs_review, cancelled]
+    ReconciliationMode:
+      type: string
+      enum: [dry_run, repair]
+    ReconcileRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode: { $ref: "#/components/schemas/ReconciliationMode" }
+        approval_id: { $ref: "#/components/schemas/ResourceId" }
+        quarantine_unmanaged: { type: boolean, default: true }
+    ReconciliationFinding:
+      type: object
+      required: [resource_type, resource_id, kind, message, repairable, destructive]
+      properties:
+        resource_type: { type: string }
+        resource_id: { type: string }
+        host_id: { type: string }
+        kind: { type: string, enum: [missing_from_host, unmanaged_host, state_drift] }
+        message: { type: string }
+        repairable: { type: boolean }
+        destructive: { type: boolean }
+    QuarantineDecisionRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [adopt, release] }
+        message: { type: string }
+    ReconciliationQuarantineRecord:
+      type: object
+      required: [id, resource_type, host_id, message, status, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        resource_type: { type: string }
+        host_id: { type: string }
+        message: { type: string }
+        status: { type: string, enum: [pending, adopted, released] }
+        created_at: { type: string, format: date-time }
+        decided_at: { type: string, format: date-time }
+        decided_by: { $ref: "#/components/schemas/ResourceId" }
+        decision_message: { type: string }
     OperationRecord:
       type: object
       required: [id, kind, status, created_at]
@@ -528,6 +596,7 @@ components:
         id: { $ref: "#/components/schemas/ResourceId" }
         kind: { type: string }
         status: { $ref: "#/components/schemas/OperationStatus" }
+        reconciliation_mode: { $ref: "#/components/schemas/ReconciliationMode" }
         progress_pct: { type: integer, minimum: 0, maximum: 100 }
         resource_type: { type: string }
         resource_id: { $ref: "#/components/schemas/ResourceId" }
@@ -537,6 +606,8 @@ components:
         finished_at: { type: string, format: date-time }
         message: { type: string }
         error: { type: string }
+        drift: { type: string }
+        findings: { type: array, items: { $ref: "#/components/schemas/ReconciliationFinding" } }
     User:
       type: object
       required: [id, username, roles, created_at]
@@ -657,6 +728,12 @@ components:
     Operation:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/OperationRecord" } } }
+    Quarantine:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/ReconciliationQuarantineRecord" } } }
+    QuarantineList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/ReconciliationQuarantineRecord" } } } }
     PoolList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Pool" } } } }
