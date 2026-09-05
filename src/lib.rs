@@ -31,6 +31,7 @@
 
 pub mod auth;
 pub mod backup;
+pub mod broker;
 pub mod common;
 pub mod gpu;
 pub mod lxc;

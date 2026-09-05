@@ -31,8 +31,21 @@ tags:
   - name: system
   - name: operations
   - name: backups
+  - name: security
 
 paths:
+  /system/broker-split:
+    get:
+      tags: [security]
+      summary: >
+        Return the current broker split inventory. This is informational: the
+        backend is currently the acting process for the privileged host stack.
+        It becomes more meaningful once the broker is deployed.
+      responses:
+        "200": { $ref: "#/components/responses/BrokerSplitInventory" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
   /health:
     get:
       tags: [system]
@@ -436,6 +449,31 @@ components:
       schema: { type: integer, minimum: 1 }
 
   schemas:
+    BrokerMode:
+      type: string
+      enum: [direct, delegated, local]
+    HostExecution:
+      type: string
+      enum: [api, broker, none]
+    BrokerSubsystem:
+      type: object
+      required: [subsystem, mode, execution, broker_required]
+      properties:
+        subsystem: { type: string }
+        mode: { $ref: "#/components/schemas/BrokerMode" }
+        execution: { $ref: "#/components/schemas/HostExecution" }
+        broker_required: { type: boolean }
+        residual_surface: { type: string }
+        current_actions: { type: array, items: { type: string } }
+    BrokerSplitInventory:
+      type: object
+      required: [generated_at, current_execution, subsystems, broker_split_incomplete]
+      properties:
+        generated_at: { type: string, format: date-time }
+        current_execution: { $ref: "#/components/schemas/HostExecution" }
+        subsystems: { type: array, items: { $ref: "#/components/schemas/BrokerSubsystem" } }
+        broker_split_incomplete: { type: boolean }
+        note: { type: string }
     ResourceId: { type: string, description: "Opaque UUID-v4 resource id." }
     ApiError:
       type: object
@@ -664,3 +702,6 @@ components:
     BackupArtifactList:
       description: OK
       content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/BackupArtifact" } } } }
+    BrokerSplitInventory:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/BrokerSplitInventory" } } }

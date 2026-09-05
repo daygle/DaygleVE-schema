@@ -653,3 +653,43 @@ export interface MetricsEvent {
   node?: NodeMetrics;
   guest?: GuestMetrics;
 }
+
+// ---------------------------------------------------------------------------
+// broker
+// ---------------------------------------------------------------------------
+
+/** The mode used for a subsystem in the current deployment. */
+export type BrokerMode = "direct" | "delegated" | "local";
+
+/** Where a subsystem's host action currently runs. */
+export type HostExecution = "api" | "broker" | "none";
+
+/** One subsystem's current security posture relative to the planned broker split. */
+export interface BrokerSubsystem {
+  /** Stable subsystem name, e.g. `kvm`, `zfs`, `lxc`, `gpu`, `network`, `share`, `backup`. */
+  subsystem: string;
+  /** Current execution mode. */
+  mode: BrokerMode;
+  /** Where the host action currently runs. */
+  execution: HostExecution;
+  /** Whether this subsystem must move behind the broker before the control plane is considered hardened. */
+  broker_required: boolean;
+  /** Human-readable summary of the residual root-equivalent surface for this subsystem. */
+  residual_surface?: string;
+  /** Specific host actions currently performed directly by the API process. */
+  current_actions: string[];
+}
+
+/** A snapshot of the current broker split posture for the whole platform. */
+export interface BrokerSplitInventory {
+  /** When the inventory was generated. */
+  generated_at: Timestamp;
+  /** Programmatic marker that the backend is still the acting process for the privileged stack. */
+  current_execution: HostExecution;
+  /** Per-subsystem posture. */
+  subsystems: BrokerSubsystem[];
+  /** Whether any subsystem still requires the broker split. */
+  broker_split_incomplete: boolean;
+  /** Explicit note that the current inventory is informational until the broker exists. */
+  note?: string;
+}
