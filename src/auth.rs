@@ -97,6 +97,10 @@ pub enum Permission {
     OperationsRead,
     /// Start operator-triggered host reconciliation jobs.
     OperationsWrite,
+    /// Read backup plans and completed backup artifacts.
+    BackupRead,
+    /// Create, modify, restore, and delete backup data.
+    BackupWrite,
     UserAdmin,
 }
 

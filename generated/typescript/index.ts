@@ -85,6 +85,8 @@ export type Permission =
   | "metrics_read"
   | "operations_read"
   | "operations_write"
+  | "backup_read"
+  | "backup_write"
   | "user_admin";
 
 export interface LoginRequest {
@@ -163,6 +165,70 @@ export interface OperationRecord {
   message?: string;
   error?: string;
   drift?: string;
+}
+
+// ---------------------------------------------------------------------------
+// backup
+// ---------------------------------------------------------------------------
+
+export type BackupSourceType = "vm" | "container" | "dataset";
+
+export interface BackupPlan {
+  id: ResourceId;
+  name: string;
+  source_type: BackupSourceType;
+  source_id: string;
+  destination: string;
+  interval_secs?: number;
+  retention_count: number;
+  verify: boolean;
+  enabled: boolean;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+  last_run_at?: Timestamp;
+  next_run_at?: Timestamp;
+}
+
+export interface CreateBackupPlanRequest {
+  name: string;
+  source_type: BackupSourceType;
+  source_id: string;
+  destination?: string;
+  interval_secs?: number;
+  retention_count?: number;
+  verify?: boolean;
+  enabled?: boolean;
+}
+
+export interface UpdateBackupPlanRequest {
+  interval_secs?: number;
+  retention_count?: number;
+  verify?: boolean;
+  enabled?: boolean;
+}
+
+export interface BackupFile {
+  dataset: string;
+  snapshot: string;
+  path: string;
+  size_bytes: number;
+  sha256: string;
+}
+
+export interface BackupArtifact {
+  id: ResourceId;
+  plan_id: ResourceId;
+  source_type: BackupSourceType;
+  source_id: string;
+  created_at: Timestamp;
+  files: BackupFile[];
+  total_size_bytes: number;
+  verified: boolean;
+}
+
+export interface RestoreBackupRequest {
+  target_id?: string;
+  force: boolean;
 }
 
 // ---------------------------------------------------------------------------

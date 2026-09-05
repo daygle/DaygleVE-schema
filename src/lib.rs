@@ -30,6 +30,7 @@
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
 
 pub mod auth;
+pub mod backup;
 pub mod common;
 pub mod gpu;
 pub mod lxc;

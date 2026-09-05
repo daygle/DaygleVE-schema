@@ -30,6 +30,7 @@ tags:
   - name: metrics
   - name: system
   - name: operations
+  - name: backups
 
 paths:
   /health:
@@ -290,6 +291,57 @@ paths:
       responses:
         "202": { $ref: "#/components/responses/Operation" }
 
+  /backups/plans:
+    get:
+      tags: [backups]
+      summary: List backup plans.
+      responses:
+        "200": { $ref: "#/components/responses/BackupPlanList" }
+    post:
+      tags: [backups]
+      summary: Create a scheduled or manual-only ZFS backup plan.
+      requestBody: { $ref: "#/components/requestBodies/CreateBackupPlanRequest" }
+      responses:
+        "201": { $ref: "#/components/responses/BackupPlan" }
+  /backups/plans/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [backups]
+      summary: Read a backup plan.
+      responses:
+        "200": { $ref: "#/components/responses/BackupPlan" }
+    patch:
+      tags: [backups]
+      summary: Update a backup plan.
+      requestBody: { $ref: "#/components/requestBodies/UpdateBackupPlanRequest" }
+      responses:
+        "200": { $ref: "#/components/responses/BackupPlan" }
+    delete:
+      tags: [backups]
+      summary: Delete a backup plan; existing artifacts are retained.
+      responses:
+        "204": { description: Deleted. }
+  /backups/plans/{id}/run:
+    post:
+      tags: [backups]
+      summary: Start a backup immediately.
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
+  /backups/artifacts:
+    get:
+      tags: [backups]
+      summary: List completed backup artifacts.
+      responses:
+        "200": { $ref: "#/components/responses/BackupArtifactList" }
+  /backups/artifacts/{id}/restore:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [backups]
+      summary: Verify and restore a backup artifact asynchronously.
+      requestBody: { $ref: "#/components/requestBodies/RestoreBackupRequest" }
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
+
   /network/bridges:
     get:
       tags: [network]
@@ -427,7 +479,7 @@ components:
         must_change_password: { type: boolean }
     Permission:
       type: string
-      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, operations_read, operations_write, metrics_read, user_admin]
+      enum: [vm_read, vm_write, vm_power, lxc_read, lxc_write, lxc_power, storage_read, storage_write, network_read, network_write, gpu_read, gpu_write, operations_read, operations_write, backup_read, backup_write, metrics_read, user_admin]
     OperationStatus:
       type: string
       enum: [queued, running, succeeded, failed, needs_review, cancelled]
@@ -491,6 +543,10 @@ components:
     BindGpuRequest: { type: object }
     NodeMetrics: { type: object }
     MetricsEvent: { type: object }
+    BackupPlan: { type: object }
+    BackupArtifact: { type: object }
+    BackupFile: { type: object }
+    BackupSourceType: { type: string, enum: [vm, container, dataset] }
 
   parameters_note: "See src/*.rs for authoritative field-level definitions."
 
@@ -519,6 +575,9 @@ components:
     CreateVlanRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVlanRequest" } } } }
     BindGpuRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BindGpuRequest" } } } }
     ChangePasswordRequest: { required: true, content: { application/json: { schema: { type: object, required: [current_password, new_password], properties: { current_password: { type: string, format: password }, new_password: { type: string, format: password, minLength: 8 } } } } } }
+    CreateBackupPlanRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/BackupPlan" } } } }
+    UpdateBackupPlanRequest: { required: true, content: { application/json: { schema: { type: object } } } }
+    RestoreBackupRequest: { required: true, content: { application/json: { schema: { type: object, required: [force], properties: { target_id: { type: string }, force: { type: boolean } } } } } }
 
   responses:
     Error:
@@ -596,3 +655,12 @@ components:
     NodeMetrics:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/NodeMetrics" } } }
+    BackupPlan:
+      description: OK
+      content: { application/json: { schema: { $ref: "#/components/schemas/BackupPlan" } } }
+    BackupPlanList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/BackupPlan" } } } }
+    BackupArtifactList:
+      description: OK
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/BackupArtifact" } } } }
