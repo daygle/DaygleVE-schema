@@ -632,6 +632,7 @@ components:
         container_id: { $ref: "#/components/schemas/ResourceId" }
         dataset: { type: string }
         used_bytes: { type: integer, format: uint64 }
+        description: { type: string }
         created_at: { type: string, format: date-time }
     Pool: { type: object }
     Dataset: { type: object }
