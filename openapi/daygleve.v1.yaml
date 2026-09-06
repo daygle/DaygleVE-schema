@@ -149,10 +149,9 @@ paths:
   /vms:
     get:
       tags: [vms]
-      summary: List virtual machines. Requires `vm_read`.
-      parameters: [ { $ref: "#/components/parameters/Page" }, { $ref: "#/components/parameters/PerPage" } ]
+      summary: List virtual machines. Requires `vm_read`. Returns the complete, unpaginated list.
       responses:
-        "200": { $ref: "#/components/responses/VmPage" }
+        "200": { $ref: "#/components/responses/VmSummaryList" }
     post:
       tags: [vms]
       summary: >
@@ -210,10 +209,9 @@ paths:
   /containers:
     get:
       tags: [containers]
-      summary: List LXC containers. Requires `lxc_read`.
-      parameters: [ { $ref: "#/components/parameters/Page" }, { $ref: "#/components/parameters/PerPage" } ]
+      summary: List LXC containers. Requires `lxc_read`. Returns the complete, unpaginated list.
       responses:
-        "200": { $ref: "#/components/responses/LxcPage" }
+        "200": { $ref: "#/components/responses/LxcSummaryList" }
     post:
       tags: [containers]
       summary: >
@@ -467,14 +465,6 @@ components:
       in: path
       required: true
       schema: { $ref: "#/components/schemas/ResourceId" }
-    Page:
-      name: page
-      in: query
-      schema: { type: integer, minimum: 1 }
-    PerPage:
-      name: per_page
-      in: query
-      schema: { type: integer, minimum: 1 }
 
   schemas:
     BrokerMode:
@@ -620,6 +610,7 @@ components:
     Vm: { type: object }
     VmSummary: { type: object }
     CreateVmRequest: { type: object }
+    CloneVmRequest: { type: object }
     UpdateVmRequest: { type: object }
     VmPowerRequest: { type: object }
     ConsoleTicket: { type: object }
@@ -672,6 +663,7 @@ components:
               description: { type: string }
     LoginRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/LoginRequest" } } } }
     CreateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateVmRequest" } } } }
+    CloneVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CloneVmRequest" } } } }
     UpdateVmRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/UpdateVmRequest" } } } }
     VmPowerRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/VmPowerRequest" } } } }
     CreateLxcRequest: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CreateLxcRequest" } } } }
@@ -704,18 +696,18 @@ components:
     Vm:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/Vm" } } }
-    VmPage:
+    VmSummaryList:
       description: OK
-      content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/VmSummary" } } } } } }
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/VmSummary" } } } }
     ConsoleTicket:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/ConsoleTicket" } } }
     Lxc:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/Lxc" } } }
-    LxcPage:
+    LxcSummaryList:
       description: OK
-      content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/LxcSummary" } } } } } }
+      content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/LxcSummary" } } } }
     LxcSnapshot:
       description: OK
       content: { application/json: { schema: { $ref: "#/components/schemas/LxcSnapshot" } } }
