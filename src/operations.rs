@@ -125,6 +125,11 @@ pub struct OperationRecord {
     /// Stable operation name, e.g. `vm.create` or `network.create_bridge`.
     pub kind: String,
     pub status: OperationStatus,
+    /// The authenticated user who triggered this operation, by user id.
+    /// `None` for system-initiated operations (e.g. the startup reconciliation
+    /// scan) or records persisted before attribution existed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub actor: Option<ResourceId>,
     /// Reconciliation mode, when this record represents a host reconciliation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reconciliation_mode: Option<ReconciliationMode>,

@@ -196,6 +196,12 @@ export interface OperationRecord {
   id: ResourceId;
   kind: string;
   status: OperationStatus;
+  /**
+   * The authenticated user who triggered this operation, by user id.
+   * `None` for system-initiated operations (e.g. the startup reconciliation
+   * scan) or records persisted before attribution existed.
+   */
+  actor?: ResourceId;
   reconciliation_mode?: ReconciliationMode;
   progress_pct?: number;
   resource_type?: string;

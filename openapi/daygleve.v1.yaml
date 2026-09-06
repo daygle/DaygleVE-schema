@@ -586,6 +586,10 @@ components:
         id: { $ref: "#/components/schemas/ResourceId" }
         kind: { type: string }
         status: { $ref: "#/components/schemas/OperationStatus" }
+        actor:
+          allOf:
+            - $ref: "#/components/schemas/ResourceId"
+          description: User id of the authenticated caller who triggered the operation; absent for system-initiated work.
         reconciliation_mode: { $ref: "#/components/schemas/ReconciliationMode" }
         progress_pct: { type: integer, minimum: 0, maximum: 100 }
         resource_type: { type: string }
