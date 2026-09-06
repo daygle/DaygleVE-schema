@@ -16,6 +16,9 @@ pub struct LxcSnapshot {
     /// Backing ZFS dataset that was snapshotted.
     pub dataset: String,
     pub used_bytes: u64,
+    /// Optional free-text note captured with the snapshot.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
     pub created_at: Timestamp,
 }
 

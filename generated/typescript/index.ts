@@ -525,6 +525,7 @@ export interface LxcSnapshot {
   container_id: ResourceId;
   dataset: string;
   used_bytes: number;
+  description?: string;
   created_at: Timestamp;
 }
 
