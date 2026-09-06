@@ -25,6 +25,7 @@ export type ErrorCode =
   | "not_found"
   | "conflict"
   | "hypervisor_error"
+  | "rate_limited"
   | "internal";
 
 /** A single field-level validation problem inside an `ApiError`. */

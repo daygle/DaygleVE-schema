@@ -69,6 +69,9 @@ pub enum ErrorCode {
     Conflict,
     /// A dependency (hypervisor, ZFS, network) reported a failure.
     HypervisorError,
+    /// The caller is rate limited (e.g. repeated failed logins) and must
+    /// retry later.
+    RateLimited,
     /// Anything unclassified / internal.
     Internal,
 }

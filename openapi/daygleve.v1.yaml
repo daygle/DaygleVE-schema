@@ -499,7 +499,7 @@ components:
       properties:
         code:
           type: string
-          enum: [validation, unauthorized, forbidden, not_found, conflict, hypervisor_error, internal]
+          enum: [validation, unauthorized, forbidden, not_found, conflict, hypervisor_error, rate_limited, internal]
         message: { type: string }
         details:
           type: array
