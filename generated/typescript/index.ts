@@ -305,6 +305,21 @@ export interface BindGpuRequest {
 }
 
 // ---------------------------------------------------------------------------
+// usb
+// ---------------------------------------------------------------------------
+
+export interface UsbDevice {
+  vendor_id: string;
+  product_id: string;
+  description: string;
+}
+
+export interface UsbAssignment {
+  vendor_id: string;
+  product_id: string;
+}
+
+// ---------------------------------------------------------------------------
 // vm
 // ---------------------------------------------------------------------------
 
@@ -376,6 +391,7 @@ export interface Vm {
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
+  usb_devices?: UsbAssignment[];
   cdrom?: string;
   description?: string;
   template: boolean;
@@ -393,6 +409,7 @@ export interface CreateVmRequest {
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
+  usb_devices?: UsbAssignment[];
   cdrom?: string;
   description?: string;
   start: boolean;
