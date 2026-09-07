@@ -23,6 +23,7 @@
 //! - [`storage`] — ZFS pools, datasets, snapshots and clones.
 //! - [`network`] — Linux bridges and VLANs.
 //! - [`gpu`]   — GPU passthrough inventory and assignment.
+//! - [`pci`]   — general (non-GPU) PCI passthrough inventory and assignment.
 //! - [`usb`]   — USB passthrough inventory and assignment.
 //! - [`metrics`] — CPU, RAM, disk, network and guest-state metrics.
 //! - [`operations`] — durable host-operation lifecycle and recovery records.
@@ -40,6 +41,7 @@ pub mod lxc_snapshot;
 pub mod metrics;
 pub mod network;
 pub mod operations;
+pub mod pci;
 pub mod share;
 pub mod storage;
 pub mod usb;
