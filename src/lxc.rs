@@ -43,6 +43,22 @@ pub struct LxcNetwork {
     pub ip: Option<String>,
 }
 
+/// A host directory bind-mounted into the container. The host `source` is
+/// exposed at the container-absolute `destination`. This is a privileged
+/// capability: it can expose arbitrary host paths to the guest, so it is only
+/// available to operators/admins who can create containers.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct LxcMount {
+    /// Absolute host path to expose (a directory).
+    pub source: String,
+    /// Absolute path inside the container where `source` appears.
+    pub destination: String,
+    /// Mount read-only. Defaults to true (the safer default).
+    #[serde(default = "default_true")]
+    pub read_only: bool,
+}
+
 /// Compact container record for list views.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -69,6 +85,9 @@ pub struct Lxc {
     pub vcpus: u32,
     pub memory_mib: u64,
     pub networks: Vec<LxcNetwork>,
+    /// Host directories bind-mounted into the container.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub mounts: Vec<LxcMount>,
     /// Run unprivileged (user-namespaced) when `true`.
     pub unprivileged: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -88,6 +107,9 @@ pub struct CreateLxcRequest {
     pub memory_mib: u64,
     pub rootfs_size_gib: u64,
     pub networks: Vec<LxcNetwork>,
+    /// Host directories to bind-mount into the container.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub mounts: Vec<LxcMount>,
     #[serde(default = "default_true")]
     pub unprivileged: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
