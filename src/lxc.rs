@@ -102,7 +102,17 @@ pub struct Lxc {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateLxcRequest {
     pub name: String,
+    /// OS template to build the rootfs from. When `template_file` is unset this
+    /// is a `<dist>-<release>` pair (e.g. `debian-bookworm`) fetched from the
+    /// LXC download server. When `template_file` is set it is a free-form label
+    /// recorded on the container (the uploaded file supplies the rootfs).
     pub template: String,
+    /// File name of an uploaded CT template (from `GET
+    /// /api/v1/storage/ct-templates`) to build the rootfs from, instead of
+    /// downloading `template` from the LXC image server. The tarball's contents
+    /// become the container's rootfs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub template_file: Option<String>,
     pub vcpus: u32,
     pub memory_mib: u64,
     pub rootfs_size_gib: u64,

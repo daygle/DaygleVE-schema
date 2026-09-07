@@ -553,6 +553,7 @@ export interface Lxc {
 export interface CreateLxcRequest {
   name: string;
   template: string;
+  template_file?: string;
   vcpus: number;
   memory_mib: number;
   rootfs_size_gib: number;
@@ -644,6 +645,19 @@ export interface CreateSnapshotRequest {
 
 export interface CloneSnapshotRequest {
   target: string;
+}
+
+// ---------------------------------------------------------------------------
+// storage_file
+// ---------------------------------------------------------------------------
+
+export type StorageFileKind = "iso" | "ct_template";
+
+export interface StorageFile {
+  name: string;
+  path: string;
+  size_bytes: number;
+  kind: StorageFileKind;
 }
 
 // ---------------------------------------------------------------------------
