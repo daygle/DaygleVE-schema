@@ -126,6 +126,14 @@ pub struct VmSummary {
     pub state: VmState,
     pub vcpus: u32,
     pub memory_mib: u64,
+    /// True when this VM is a template (a clone-only golden image that cannot be
+    /// powered on). Surfaced here so list views can badge it and hide power
+    /// controls.
+    #[serde(default)]
+    pub template: bool,
+    /// Start automatically on host boot.
+    #[serde(default)]
+    pub autostart: bool,
     pub created_at: Timestamp,
 }
 
@@ -160,6 +168,17 @@ pub struct Vm {
     /// Host-side firewall configuration for this VM.
     #[serde(default, skip_serializing_if = "VmFirewall::is_empty")]
     pub firewall: VmFirewall,
+    /// When true, this VM is a template: a golden image used only as a clone
+    /// source. Templates cannot be powered on or autostarted.
+    #[serde(default)]
+    pub template: bool,
+    /// Start this VM automatically when the host boots. Ignored for templates.
+    #[serde(default)]
+    pub autostart: bool,
+    /// Ordering for host-boot autostart: lower numbers start first; VMs without
+    /// an explicit order start last. Only meaningful when `autostart` is set.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub startup_order: Option<u32>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<Timestamp>,
@@ -184,9 +203,20 @@ pub struct CreateVmRequest {
     pub cdrom: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    /// Start the VM immediately after creation.
+    /// Start the VM immediately after creation. Rejected together with
+    /// `template` (a template is never powered on).
     #[serde(default)]
     pub start: bool,
+    /// Create this VM as a template (a clone-only golden image that cannot be
+    /// powered on).
+    #[serde(default)]
+    pub template: bool,
+    /// Start this VM automatically on host boot. Ignored for templates.
+    #[serde(default)]
+    pub autostart: bool,
+    /// Autostart ordering: lower numbers start first.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub startup_order: Option<u32>,
     /// QEMU guest agent integration. When enabled, the VM gets a virtio-serial guest
     /// agent channel (the guest must also run `qemu-guest-agent` to use it).
     #[serde(default)]
@@ -315,6 +345,17 @@ pub struct UpdateVmRequest {
     /// Requires the VM to be stopped when changing.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cloud_init: Option<CloudInitRequest>,
+    /// Convert to/from a template. Marking a running VM as a template is rejected;
+    /// setting it requires the VM to be stopped. Making a VM a template also
+    /// clears its autostart flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub template: Option<bool>,
+    /// Start automatically on host boot. Ignored for templates.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub autostart: Option<bool>,
+    /// Autostart ordering: lower numbers start first.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub startup_order: Option<u32>,
 }
 
 /// Response from `POST /api/v1/vms/{id}/console` — a short-lived noVNC ticket.
