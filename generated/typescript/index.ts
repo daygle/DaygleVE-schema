@@ -361,6 +361,8 @@ export interface VmSummary {
   state: VmState;
   vcpus: number;
   memory_mib: number;
+  template: boolean;
+  autostart: boolean;
   created_at: Timestamp;
 }
 
@@ -376,6 +378,9 @@ export interface Vm {
   gpus?: GpuAssignment[];
   cdrom?: string;
   description?: string;
+  template: boolean;
+  autostart: boolean;
+  startup_order?: number;
   created_at: Timestamp;
   updated_at?: Timestamp;
 }
@@ -391,6 +396,9 @@ export interface CreateVmRequest {
   cdrom?: string;
   description?: string;
   start: boolean;
+  template: boolean;
+  autostart: boolean;
+  startup_order?: number;
 }
 
 export interface UpdateVmRequest {
@@ -403,6 +411,9 @@ export interface UpdateVmRequest {
   cdrom?: string;
   eject_cdrom?: boolean;
   description?: string;
+  template?: boolean;
+  autostart?: boolean;
+  startup_order?: number;
 }
 
 export interface VmPowerRequest {
