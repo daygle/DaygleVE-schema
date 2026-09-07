@@ -6,6 +6,7 @@ use typeshare::typeshare;
 
 use crate::common::{ResourceId, Timestamp};
 use crate::gpu::GpuAssignment;
+use crate::pci::PciAssignment;
 use crate::usb::UsbAssignment;
 
 /// Lifecycle state of a virtual machine, as reported by the hypervisor.
@@ -156,6 +157,9 @@ pub struct Vm {
     /// Host USB devices passed through to this VM, if any.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub usb_devices: Vec<UsbAssignment>,
+    /// Host PCI devices (non-GPU) passed through to this VM, if any.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pci_devices: Vec<PciAssignment>,
     /// Host path of an install ISO attached as a virtual CD-ROM, if any. When
     /// set, the VM boots from the CD-ROM first (so a guest OS can be installed)
     /// and falls back to disk; eject it once the OS is installed.
@@ -203,6 +207,9 @@ pub struct CreateVmRequest {
     /// Host USB devices to pass through, matched by USB vendor:product.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub usb_devices: Vec<UsbAssignment>,
+    /// Host PCI devices (non-GPU) to pass through, by PCI address.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pci_devices: Vec<PciAssignment>,
     /// Host path of an install ISO to attach as a virtual CD-ROM. Must be one
     /// of the images returned by `GET /api/v1/vms/iso-images`. When set the VM
     /// boots from it first so a guest OS can be installed.

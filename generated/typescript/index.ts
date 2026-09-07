@@ -305,6 +305,23 @@ export interface BindGpuRequest {
 }
 
 // ---------------------------------------------------------------------------
+// pci
+// ---------------------------------------------------------------------------
+
+export interface PciDevice {
+  pci_address: string;
+  pci_id: string;
+  vendor: string;
+  class: string;
+  iommu_group: number;
+  available: boolean;
+}
+
+export interface PciAssignment {
+  pci_address: string;
+}
+
+// ---------------------------------------------------------------------------
 // usb
 // ---------------------------------------------------------------------------
 
@@ -392,6 +409,7 @@ export interface Vm {
   nics: VmNic[];
   gpus?: GpuAssignment[];
   usb_devices?: UsbAssignment[];
+  pci_devices?: PciAssignment[];
   cdrom?: string;
   description?: string;
   template: boolean;
@@ -410,6 +428,7 @@ export interface CreateVmRequest {
   nics: VmNic[];
   gpus?: GpuAssignment[];
   usb_devices?: UsbAssignment[];
+  pci_devices?: PciAssignment[];
   cdrom?: string;
   description?: string;
   start: boolean;
