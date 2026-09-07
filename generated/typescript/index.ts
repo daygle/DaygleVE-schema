@@ -358,6 +358,8 @@ export type VmPowerAction =
 
 export type Firmware = "bios" | "uefi";
 
+export type DisplayProtocol = "vnc" | "spice";
+
 export type DiskBus = "virtio" | "scsi" | "sata";
 
 export type NicModel = "virtio" | "e1000" | "rtl8139";
@@ -405,6 +407,7 @@ export interface Vm {
   vcpus: number;
   memory_mib: number;
   firmware: Firmware;
+  display: DisplayProtocol;
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
@@ -424,6 +427,7 @@ export interface CreateVmRequest {
   vcpus: number;
   memory_mib: number;
   firmware: Firmware;
+  display: DisplayProtocol;
   disks: VmDisk[];
   nics: VmNic[];
   gpus?: GpuAssignment[];
@@ -442,6 +446,7 @@ export interface UpdateVmRequest {
   vcpus?: number;
   memory_mib?: number;
   firmware?: Firmware;
+  display?: DisplayProtocol;
   disks?: VmDisk[];
   nics?: VmNic[];
   cdrom?: string;

@@ -55,6 +55,19 @@ pub enum Firmware {
     Uefi,
 }
 
+/// Graphical display protocol a VM exposes.
+#[typeshare]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum DisplayProtocol {
+    /// VNC — the default; usable in-browser via the noVNC console.
+    #[default]
+    Vnc,
+    /// SPICE — richer remote display (opened with an external `remote-viewer`
+    /// via a downloaded connection file). Pairs with a QXL video model.
+    Spice,
+}
+
 /// A virtual disk attached to a VM, backed by a ZFS zvol.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -149,6 +162,9 @@ pub struct Vm {
     pub vcpus: u32,
     pub memory_mib: u64,
     pub firmware: Firmware,
+    /// Graphical display protocol the VM exposes (VNC or SPICE).
+    #[serde(default)]
+    pub display: DisplayProtocol,
     pub disks: Vec<VmDisk>,
     pub nics: Vec<VmNic>,
     /// GPUs passed through to this VM, if any.
@@ -200,6 +216,9 @@ pub struct CreateVmRequest {
     pub vcpus: u32,
     pub memory_mib: u64,
     pub firmware: Firmware,
+    /// Graphical display protocol (VNC or SPICE). Defaults to VNC.
+    #[serde(default)]
+    pub display: DisplayProtocol,
     pub disks: Vec<VmDisk>,
     pub nics: Vec<VmNic>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -325,6 +344,10 @@ pub struct UpdateVmRequest {
     /// Firmware/boot mode. Changing it requires the VM to be stopped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub firmware: Option<Firmware>,
+    /// Graphical display protocol (VNC or SPICE). Changing it requires the VM
+    /// to be stopped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display: Option<DisplayProtocol>,
     /// Replace the VM's disks with this set (declarative). New datasets are
     /// provisioned; removing a disk detaches it but never destroys its data.
     /// Requires the VM to be stopped.
