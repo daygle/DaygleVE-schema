@@ -483,6 +483,12 @@ export interface LxcNetwork {
   ip?: string;
 }
 
+export interface LxcMount {
+  source: string;
+  destination: string;
+  read_only: boolean;
+}
+
 export interface LxcSummary {
   id: ResourceId;
   name: string;
@@ -501,6 +507,7 @@ export interface Lxc {
   vcpus: number;
   memory_mib: number;
   networks: LxcNetwork[];
+  mounts?: LxcMount[];
   unprivileged: boolean;
   description?: string;
   created_at: Timestamp;
@@ -514,6 +521,7 @@ export interface CreateLxcRequest {
   memory_mib: number;
   rootfs_size_gib: number;
   networks: LxcNetwork[];
+  mounts?: LxcMount[];
   unprivileged: boolean;
   description?: string;
   start: boolean;
