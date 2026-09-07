@@ -21,6 +21,7 @@
 //! - [`vm`]    — KVM/QEMU virtual machine lifecycle types.
 //! - [`lxc`]   — LXC container lifecycle types.
 //! - [`storage`] — ZFS pools, datasets, snapshots and clones.
+//! - [`storage_file`] — uploaded local media library (ISOs, CT templates).
 //! - [`network`] — Linux bridges and VLANs.
 //! - [`gpu`]   — GPU passthrough inventory and assignment.
 //! - [`pci`]   — general (non-GPU) PCI passthrough inventory and assignment.
@@ -44,6 +45,7 @@ pub mod operations;
 pub mod pci;
 pub mod share;
 pub mod storage;
+pub mod storage_file;
 pub mod usb;
 pub mod vm;
 
