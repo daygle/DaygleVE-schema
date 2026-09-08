@@ -31,6 +31,16 @@ pub struct BackupPlan {
     pub interval_secs: Option<u64>,
     /// Keep the newest N successful artifacts.
     pub retention_count: u32,
+    /// Snapshot tag used as the incremental base for `zfs send -i`.
+    ///
+    /// `None` sends full streams (`zfs send -p`). When set, every run sends
+    /// `zfs send -i <dataset>@<from_snapshot> <dataset>@<new>`: each artifact
+    /// is an independent delta against the same fixed base, so artifacts stay
+    /// individually restorable and retention can prune any of them without
+    /// breaking the chain. The base snapshot must already exist on the source
+    /// dataset and is never created or destroyed by the plan.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub from_snapshot: Option<String>,
     pub verify: bool,
     pub enabled: bool,
     pub created_at: Timestamp,
@@ -54,6 +64,11 @@ pub struct CreateBackupPlanRequest {
     /// Must be at least one; defaults to seven artifacts.
     #[serde(default = "default_retention")]
     pub retention_count: u32,
+    /// Snapshot tag for incremental `zfs send -i` runs; omit for full sends.
+    /// Validated as a ZFS snapshot tag; the base must already exist on every
+    /// source dataset when a run starts.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub from_snapshot: Option<String>,
     #[serde(default = "default_true")]
     pub verify: bool,
     #[serde(default = "default_true")]
@@ -66,6 +81,10 @@ pub struct CreateBackupPlanRequest {
 pub struct UpdateBackupPlanRequest {
     pub interval_secs: Option<u64>,
     pub retention_count: Option<u32>,
+    /// Switch the plan between full and incremental sends, or change the
+    /// incremental base tag. The base must exist on every source dataset at
+    /// the next run.
+    pub from_snapshot: Option<String>,
     pub verify: Option<bool>,
     pub enabled: Option<bool>,
 }
@@ -76,6 +95,11 @@ pub struct UpdateBackupPlanRequest {
 pub struct BackupFile {
     pub dataset: String,
     pub snapshot: String,
+    /// For incremental streams, the `dataset@tag` base the delta was sent
+    /// against. Restoring this file requires the target to already contain
+    /// that snapshot (or an earlier backup to be received first).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub incremental_from: Option<String>,
     /// Absolute host path is returned for operator visibility; it is never
     /// accepted as a command argument from a client.
     pub path: String,
@@ -106,6 +130,10 @@ pub struct RestoreBackupRequest {
     pub target_id: Option<String>,
     /// Required because restore can replace existing ZFS state.
     pub force: bool,
+    /// Restore an incremental stream by first receiving the base stream from
+    /// the artifact that produced it, then this delta. Omit for full streams.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_artifact_id: Option<ResourceId>,
 }
 
 fn default_destination() -> String {
