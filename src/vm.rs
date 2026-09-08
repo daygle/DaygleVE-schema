@@ -152,6 +152,9 @@ pub struct VmSummary {
     /// Free-form organizational tags (surfaced for filtering/badging).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Resource pool this VM belongs to, if any (surfaced for filtering).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
     pub created_at: Timestamp,
 }
 
@@ -209,6 +212,10 @@ pub struct Vm {
     /// Free-form organizational tags for filtering and grouping in the UI.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Name of the resource pool this VM belongs to, if any. A VM is in at most
+    /// one pool.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<Timestamp>,
@@ -272,6 +279,10 @@ pub struct CreateVmRequest {
     /// Free-form organizational tags.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Resource pool to place this VM in. The pool must already exist; an empty
+    /// or omitted value leaves the VM unassigned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
 }
 
 /// Per-NIC firewall rules applied on the host (nftables) for the guest's traffic.
@@ -405,6 +416,11 @@ pub struct UpdateVmRequest {
     /// Replace the VM's organizational tags. Applies live (no restart needed).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// Reassign the VM's resource pool. `Some("<name>")` moves it into that
+    /// (existing) pool; `Some("")` removes it from any pool; omitting the field
+    /// leaves membership unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
 }
 
 /// Response from `POST /api/v1/vms/{id}/console` — a short-lived noVNC ticket.

@@ -101,6 +101,10 @@ pub enum Permission {
     BackupRead,
     /// Create, modify, restore, and delete backup data.
     BackupWrite,
+    /// List resource pools and their members.
+    PoolRead,
+    /// Create, modify, and delete resource pools.
+    PoolWrite,
     UserAdmin,
 }
 

@@ -28,6 +28,7 @@
 //! - [`usb`]   — USB passthrough inventory and assignment.
 //! - [`metrics`] — CPU, RAM, disk, network and guest-state metrics.
 //! - [`operations`] — durable host-operation lifecycle and recovery records.
+//! - [`pool`]  — resource pools grouping guests for organization.
 //!
 //! [`DaygleVE-backend`]: https://github.com/daygle/DaygleVE-backend
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
@@ -43,6 +44,7 @@ pub mod metrics;
 pub mod network;
 pub mod operations;
 pub mod pci;
+pub mod pool;
 pub mod share;
 pub mod storage;
 pub mod storage_file;

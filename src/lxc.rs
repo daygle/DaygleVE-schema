@@ -71,6 +71,9 @@ pub struct LxcSummary {
     /// Free-form organizational tags.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Resource pool this container belongs to, if any (surfaced for filtering).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
     pub created_at: Timestamp,
 }
 
@@ -98,6 +101,10 @@ pub struct Lxc {
     /// Free-form organizational tags.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Name of the resource pool this container belongs to, if any. A container
+    /// is in at most one pool.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<Timestamp>,
@@ -133,6 +140,10 @@ pub struct CreateLxcRequest {
     /// Free-form organizational tags.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
+    /// Resource pool to place this container in. The pool must already exist; an
+    /// empty or omitted value leaves the container unassigned.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
     #[serde(default)]
     pub start: bool,
 }
@@ -156,6 +167,11 @@ pub struct UpdateLxcRequest {
     /// Replace the container's organizational tags.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// Reassign the container's resource pool. `Some("<name>")` moves it into
+    /// that (existing) pool; `Some("")` removes it from any pool; omitting the
+    /// field leaves membership unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pool: Option<String>,
 }
 
 /// Body for `POST /api/v1/containers/{id}/power`.
