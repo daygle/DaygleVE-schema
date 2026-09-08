@@ -29,6 +29,7 @@
 //! - [`metrics`] — CPU, RAM, disk, network and guest-state metrics.
 //! - [`operations`] — durable host-operation lifecycle and recovery records.
 //! - [`pool`]  — resource pools grouping guests for organization.
+//! - [`schedule`] — cron-scheduled guest power actions.
 //!
 //! [`DaygleVE-backend`]: https://github.com/daygle/DaygleVE-backend
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
@@ -45,6 +46,7 @@ pub mod network;
 pub mod operations;
 pub mod pci;
 pub mod pool;
+pub mod schedule;
 pub mod share;
 pub mod storage;
 pub mod storage_file;

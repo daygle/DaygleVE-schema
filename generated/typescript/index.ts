@@ -366,6 +366,45 @@ export interface UpdateResourcePoolRequest {
 }
 
 // ---------------------------------------------------------------------------
+// schedule
+// ---------------------------------------------------------------------------
+
+export type ScheduleTarget = "vm" | "lxc";
+
+export type PowerScheduleAction = "start" | "shutdown" | "reboot";
+
+export interface PowerSchedule {
+  id: ResourceId;
+  target_kind: ScheduleTarget;
+  target_id: ResourceId;
+  action: PowerScheduleAction;
+  cron: string;
+  enabled: boolean;
+  description?: string;
+  last_run_at?: Timestamp;
+  last_result?: string;
+  next_run_at?: Timestamp;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+}
+
+export interface CreatePowerScheduleRequest {
+  target_kind: ScheduleTarget;
+  target_id: ResourceId;
+  action: PowerScheduleAction;
+  cron: string;
+  enabled?: boolean;
+  description?: string;
+}
+
+export interface UpdatePowerScheduleRequest {
+  action?: PowerScheduleAction;
+  cron?: string;
+  enabled?: boolean;
+  description?: string;
+}
+
+// ---------------------------------------------------------------------------
 // usb
 // ---------------------------------------------------------------------------
 
