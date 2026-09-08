@@ -20,6 +20,27 @@ pub enum StorageFileKind {
     /// An LXC container-template rootfs tarball (`.tar`, `.tar.gz`, `.tar.xz`,
     /// `.tar.zst`, or `.tgz`) usable as a container's rootfs source.
     CtTemplate,
+    /// A VM disk image (`.qcow2`, `.vmdk`, `.raw`, `.img`, `.vdi`, `.vhd`,
+    /// `.vhdx`) that can be imported into a zvol as a VM disk.
+    DiskImage,
+}
+
+/// Body for `POST /api/v1/storage/disk-images/import` — convert an uploaded
+/// disk image into a new ZFS zvol usable as a VM disk.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ImportDiskImageRequest {
+    /// File name of the uploaded disk image (from `GET
+    /// /api/v1/storage/disk-images`).
+    pub image_name: String,
+    /// Target ZFS dataset for the new zvol, e.g. `tank/vm-imported-disk0`. Must
+    /// not already exist.
+    pub dataset: String,
+    /// Size of the target zvol in GiB. When omitted, the image's virtual size is
+    /// detected and rounded up. When given, it must be at least the virtual
+    /// size.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size_gib: Option<u64>,
 }
 
 /// A file in one of the node's local upload libraries.
