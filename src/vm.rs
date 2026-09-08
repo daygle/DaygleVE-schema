@@ -568,6 +568,26 @@ pub enum VmSnapshotType {
     Ram,
 }
 
+/// Body for `POST /api/v1/vms/{id}/usb-devices` — hot-attach a host USB
+/// device to a VM by vendor:product id, mirroring the disk hotplug API.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AttachVmUsbRequest {
+    /// USB vendor id, four hex digits.
+    pub vendor_id: String,
+    /// USB product id, four hex digits.
+    pub product_id: String,
+}
+
+/// Body for `POST /api/v1/vms/{id}/pci-devices` — hot-attach a host PCI
+/// function to a VM, mirroring the disk hotplug API.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AttachVmPciRequest {
+    /// PCI address of the device to pass through, e.g. `0000:01:00.0`.
+    pub pci_address: String,
+}
+
 /// Body for `POST /api/v1/vms/{id}/power`.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
