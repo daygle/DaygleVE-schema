@@ -68,6 +68,9 @@ pub struct LxcSummary {
     pub state: LxcState,
     pub vcpus: u32,
     pub memory_mib: u64,
+    /// Free-form organizational tags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     pub created_at: Timestamp,
 }
 
@@ -92,6 +95,9 @@ pub struct Lxc {
     pub unprivileged: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Free-form organizational tags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<Timestamp>,
@@ -124,6 +130,9 @@ pub struct CreateLxcRequest {
     pub unprivileged: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Free-form organizational tags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     #[serde(default)]
     pub start: bool,
 }
@@ -144,6 +153,9 @@ pub struct UpdateLxcRequest {
     pub memory_mib: Option<u64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Replace the container's organizational tags.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
 }
 
 /// Body for `POST /api/v1/containers/{id}/power`.
