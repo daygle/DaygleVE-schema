@@ -22,7 +22,7 @@ pub struct LxcSnapshot {
     pub created_at: Timestamp,
 }
 
-/// Body for `POST /api/v1/containers/{id}/snapshots` — capture a snapshot.
+/// Body for `POST /api/v1/containers/{id}/snapshots` - capture a snapshot.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateLxcSnapshotRequest {

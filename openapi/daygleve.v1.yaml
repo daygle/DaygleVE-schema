@@ -1,4 +1,4 @@
-# DaygleVE REST API — v1
+# DaygleVE REST API - v1
 #
 # This document describes the endpoint surface (paths, methods, auth and status
 # codes) of the DaygleVE backend. The request/response *shapes* are the

@@ -51,7 +51,7 @@ pub struct NetworkShare {
     /// Absolute mount point on the node.
     pub mount_point: String,
     pub state: ShareState,
-    /// Whether the share is mounted read-only (always true for now — shares are
+    /// Whether the share is mounted read-only (always true for now - shares are
     /// content sources, not writable storage).
     pub read_only: bool,
     /// CIFS username, when applicable. The password is write-only and never
@@ -67,7 +67,7 @@ pub struct NetworkShare {
     pub created_at: Timestamp,
 }
 
-/// Body for `POST /api/v1/storage/shares` — add and mount a network share.
+/// Body for `POST /api/v1/storage/shares` - add and mount a network share.
 ///
 /// `Debug` is implemented by hand (not derived) so the CIFS `password` is never
 /// printed if a request body is ever logged.

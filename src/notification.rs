@@ -4,7 +4,7 @@
 //! A channel subscribes to a set of [`NotificationEvent`]s and, when one fires,
 //! the backend delivers a short message through the channel's transport. Secrets
 //! (an SMTP password or a webhook signing secret) are write-only: they are set
-//! through the create/update requests and never returned — a channel only
+//! through the create/update requests and never returned - a channel only
 //! reports whether one is stored via `has_secret`.
 
 use serde::{Deserialize, Serialize};
@@ -38,7 +38,7 @@ pub enum NotificationEvent {
     Test,
 }
 
-/// SMTP delivery settings (no password — that is the channel secret).
+/// SMTP delivery settings (no password - that is the channel secret).
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EmailSettings {
@@ -55,7 +55,7 @@ pub struct EmailSettings {
     pub starttls: bool,
 }
 
-/// Outbound webhook settings (no secret — that is the channel secret).
+/// Outbound webhook settings (no secret - that is the channel secret).
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct WebhookSettings {

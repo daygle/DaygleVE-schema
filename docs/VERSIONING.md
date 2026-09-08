@@ -18,10 +18,10 @@ value is exported as `API_VERSION` (Rust) and embedded in the backend router.
 
 - The Rust crate `daygleve-schema` and the npm package `@daygleve/schema`
   share the same version number.
-- **MAJOR** — a breaking change to any existing type (implies a new API major
+- **MAJOR** - a breaking change to any existing type (implies a new API major
   version too).
-- **MINOR** — additive, backward-compatible changes.
-- **PATCH** — documentation or comment-only changes; no shape change.
+- **MINOR** - additive, backward-compatible changes.
+- **PATCH** - documentation or comment-only changes; no shape change.
 
 ## Compatibility rules for consumers
 

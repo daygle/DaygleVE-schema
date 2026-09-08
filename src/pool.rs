@@ -1,7 +1,7 @@
 //! Resource pools: named groupings of guests (VMs and containers) for
 //! organization and, later, permission delegation.
 //!
-//! A pool is lightweight metadata — a name and an optional comment. Membership
+//! A pool is lightweight metadata - a name and an optional comment. Membership
 //! lives on the guest (each `Vm`/`Lxc` carries an optional `pool` naming the
 //! pool it belongs to), so a guest is in at most one pool. The pool `name` is
 //! the stable identifier guests reference and is immutable once created;
@@ -68,7 +68,7 @@ pub struct ResourcePoolDetail {
     pub members: Vec<PoolMember>,
 }
 
-/// Body for `POST /api/v1/pools` — create a pool.
+/// Body for `POST /api/v1/pools` - create a pool.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateResourcePoolRequest {
@@ -77,7 +77,7 @@ pub struct CreateResourcePoolRequest {
     pub comment: Option<String>,
 }
 
-/// Body for `PATCH /api/v1/pools/{id}` — update a pool. The name is immutable,
+/// Body for `PATCH /api/v1/pools/{id}` - update a pool. The name is immutable,
 /// so only the comment can change. `comment: Some("")` clears the comment;
 /// omitting the field leaves it unchanged.
 #[typeshare]

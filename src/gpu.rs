@@ -36,7 +36,7 @@ pub struct GpuAssignment {
     pub primary: bool,
 }
 
-/// Body for `POST /api/v1/gpus/{pci_address}/bind` — bind a host GPU to
+/// Body for `POST /api/v1/gpus/{pci_address}/bind` - bind a host GPU to
 /// `vfio-pci` so it can be passed through.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

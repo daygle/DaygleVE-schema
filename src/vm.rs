@@ -60,10 +60,10 @@ pub enum Firmware {
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum DisplayProtocol {
-    /// VNC — the default; usable in-browser via the noVNC console.
+    /// VNC - the default; usable in-browser via the noVNC console.
     #[default]
     Vnc,
-    /// SPICE — richer remote display (opened with an external `remote-viewer`
+    /// SPICE - richer remote display (opened with an external `remote-viewer`
     /// via a downloaded connection file). Pairs with a QXL video model.
     Spice,
 }
@@ -221,7 +221,7 @@ pub struct Vm {
     pub updated_at: Option<Timestamp>,
 }
 
-/// Body for `POST /api/v1/vms` — the desired spec of a new VM.
+/// Body for `POST /api/v1/vms` - the desired spec of a new VM.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateVmRequest {
@@ -350,7 +350,7 @@ impl VmFirewall {
     }
 }
 
-/// Body for `PATCH /api/v1/vms/{id}` — all fields optional; only present
+/// Body for `PATCH /api/v1/vms/{id}` - all fields optional; only present
 /// fields are applied. Most changes require the VM to be stopped.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -382,7 +382,7 @@ pub struct UpdateVmRequest {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cdrom: Option<String>,
     /// Eject any attached install ISO (`Some(true)`). Takes precedence over
-    /// `cdrom`. Optional like every other field — omitting it means "no change".
+    /// `cdrom`. Optional like every other field - omitting it means "no change".
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub eject_cdrom: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -423,7 +423,7 @@ pub struct UpdateVmRequest {
     pub pool: Option<String>,
 }
 
-/// Response from `POST /api/v1/vms/{id}/console` — a short-lived noVNC ticket.
+/// Response from `POST /api/v1/vms/{id}/console` - a short-lived noVNC ticket.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ConsoleTicket {
@@ -462,12 +462,12 @@ pub struct VmSnapshot {
     pub snapshot_type: VmSnapshotType,
 }
 
-/// Body for `POST /api/v1/vms/{id}/snapshots` — capture a new VM snapshot.
+/// Body for `POST /api/v1/vms/{id}/snapshots` - capture a new VM snapshot.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CreateVmSnapshotRequest {
-    /// Snapshot name; must be a valid ZFS snapshot tag — letters, digits, and
-    /// the punctuation `_`, `-`, `.`, `:` (no spaces) — and unique within the VM.
+    /// Snapshot name; must be a valid ZFS snapshot tag - letters, digits, and
+    /// the punctuation `_`, `-`, `.`, `:` (no spaces) - and unique within the VM.
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -476,7 +476,7 @@ pub struct CreateVmSnapshotRequest {
     pub snapshot_type: VmSnapshotType,
 }
 
-/// Body for `POST /api/v1/vms/{id}/disks/{index}/resize` — grow a VM disk's
+/// Body for `POST /api/v1/vms/{id}/disks/{index}/resize` - grow a VM disk's
 /// backing zvol (and resize the running guest's block device when the VM is up).
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -486,7 +486,7 @@ pub struct ResizeVmDiskRequest {
     pub size_gib: u64,
 }
 
-/// Body for `POST /api/v1/vms/{id}/clone` — copy an existing VM into a new one.
+/// Body for `POST /api/v1/vms/{id}/clone` - copy an existing VM into a new one.
 /// The clone gets a fresh id and freshly-generated NIC MACs; its disks are ZFS
 /// clones of the source's disks (taken from a snapshot of the source). Any GPU
 /// passthrough and attached install ISO are dropped (they can't be shared). The
@@ -498,7 +498,7 @@ pub struct CloneVmRequest {
     pub name: String,
     /// When `true`, the clone's disks are promoted so they no longer depend on
     /// the source's snapshot (an independent "full" clone). When `false`
-    /// (default), the disks stay as linked clones — fast and space-efficient, but
+    /// (default), the disks stay as linked clones - fast and space-efficient, but
     /// tied to the source until promoted.
     #[serde(default)]
     pub full: bool,
@@ -568,7 +568,7 @@ pub enum VmSnapshotType {
     Ram,
 }
 
-/// Body for `POST /api/v1/vms/{id}/usb-devices` — hot-attach a host USB
+/// Body for `POST /api/v1/vms/{id}/usb-devices` - hot-attach a host USB
 /// device to a VM by vendor:product id, mirroring the disk hotplug API.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -579,7 +579,7 @@ pub struct AttachVmUsbRequest {
     pub product_id: String,
 }
 
-/// Body for `POST /api/v1/vms/{id}/pci-devices` — hot-attach a host PCI
+/// Body for `POST /api/v1/vms/{id}/pci-devices` - hot-attach a host PCI
 /// function to a VM, mirroring the disk hotplug API.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -608,7 +608,7 @@ pub struct VmPowerResponse {
     pub guest_ips: Vec<String>,
 }
 
-/// Response from `GET /api/v1/vms/{id}/guest-agent` — guest agent status and reported
+/// Response from `GET /api/v1/vms/{id}/guest-agent` - guest agent status and reported
 /// guest info.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

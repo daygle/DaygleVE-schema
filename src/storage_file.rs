@@ -25,7 +25,7 @@ pub enum StorageFileKind {
     DiskImage,
 }
 
-/// Body for `POST /api/v1/storage/disk-images/import` — convert an uploaded
+/// Body for `POST /api/v1/storage/disk-images/import` - convert an uploaded
 /// disk image into a new ZFS zvol usable as a VM disk.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

@@ -45,7 +45,7 @@ impl std::fmt::Debug for LoginResponse {
     }
 }
 
-/// A platform user account. Never carries secrets — password hashes stay
+/// A platform user account. Never carries secrets - password hashes stay
 /// server-side.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -125,7 +125,7 @@ pub struct CurrentUser {
     pub must_change_password: bool,
 }
 
-/// Body for `POST /api/v1/users` — create a user account.
+/// Body for `POST /api/v1/users` - create a user account.
 ///
 /// `Debug` is hand-written so the plaintext `password` is never printed.
 #[typeshare]
@@ -147,7 +147,7 @@ impl std::fmt::Debug for CreateUserRequest {
     }
 }
 
-/// Body for `PATCH /api/v1/users/{id}` — update a user's roles and/or reset
+/// Body for `PATCH /api/v1/users/{id}` - update a user's roles and/or reset
 /// their password (admin action). Only present fields are applied.
 ///
 /// `Debug` is hand-written so a reset `password` is never printed.
@@ -170,7 +170,7 @@ impl std::fmt::Debug for UpdateUserRequest {
     }
 }
 
-/// Body for `POST /api/v1/auth/change-password` — the caller changes their own
+/// Body for `POST /api/v1/auth/change-password` - the caller changes their own
 /// password.
 ///
 /// `Debug` is hand-written so neither password is printed.

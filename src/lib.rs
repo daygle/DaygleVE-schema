@@ -16,22 +16,22 @@
 //!
 //! ## Modules
 //!
-//! - [`common`] — API version, error envelope, pagination, id/time helpers.
-//! - [`auth`] — login, tokens, users, roles and RBAC permissions.
-//! - [`vm`]    — KVM/QEMU virtual machine lifecycle types.
-//! - [`lxc`]   — LXC container lifecycle types.
-//! - [`storage`] — ZFS pools, datasets, snapshots and clones.
-//! - [`storage_file`] — uploaded local media library (ISOs, CT templates).
-//! - [`network`] — Linux bridges and VLANs.
-//! - [`gpu`]   — GPU passthrough inventory and assignment.
-//! - [`pci`]   — general (non-GPU) PCI passthrough inventory and assignment.
-//! - [`usb`]   — USB passthrough inventory and assignment.
-//! - [`metrics`] — CPU, RAM, disk, network and guest-state metrics.
-//! - [`operations`] — durable host-operation lifecycle and recovery records.
-//! - [`pool`]  — resource pools grouping guests for organization.
-//! - [`schedule`] — cron-scheduled guest power actions.
-//! - [`snapshot_schedule`] — cron-scheduled snapshots with retention.
-//! - [`notification`] — email/webhook notification channels.
+//! - [`common`] - API version, error envelope, pagination, id/time helpers.
+//! - [`auth`] - login, tokens, users, roles and RBAC permissions.
+//! - [`vm`]    - KVM/QEMU virtual machine lifecycle types.
+//! - [`lxc`]   - LXC container lifecycle types.
+//! - [`storage`] - ZFS pools, datasets, snapshots and clones.
+//! - [`storage_file`] - uploaded local media library (ISOs, CT templates).
+//! - [`network`] - Linux bridges and VLANs.
+//! - [`gpu`]   - GPU passthrough inventory and assignment.
+//! - [`pci`]   - general (non-GPU) PCI passthrough inventory and assignment.
+//! - [`usb`]   - USB passthrough inventory and assignment.
+//! - [`metrics`] - CPU, RAM, disk, network and guest-state metrics.
+//! - [`operations`] - durable host-operation lifecycle and recovery records.
+//! - [`pool`]  - resource pools grouping guests for organization.
+//! - [`schedule`] - cron-scheduled guest power actions.
+//! - [`snapshot_schedule`] - cron-scheduled snapshots with retention.
+//! - [`notification`] - email/webhook notification channels.
 //!
 //! [`DaygleVE-backend`]: https://github.com/daygle/DaygleVE-backend
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend

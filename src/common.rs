@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
 /// The current major API version string, embedded in the base path
-/// (`/api/v1`). Bumped only on a breaking change — see `docs/VERSIONING.md`.
+/// (`/api/v1`). Bumped only on a breaking change - see `docs/VERSIONING.md`.
 pub const API_VERSION: &str = "v1";
 
 /// RFC 3339 / ISO-8601 timestamp, e.g. `2026-09-01T12:00:00Z`.
@@ -18,7 +18,7 @@ pub type Timestamp = String;
 /// Opaque identifier for a platform resource (VM, container, dataset, …).
 ///
 /// UUID v4 in canonical hyphenated form. Treated as an opaque string by
-/// clients — never parse structure out of it.
+/// clients - never parse structure out of it.
 #[typeshare]
 pub type ResourceId = String;
 

@@ -9,7 +9,7 @@
 
 <p align="center">
 Shared API type definitions for the <a href="https://github.com/daygle">DaygleVE</a>
-single-node virtualization platform — the <strong>single source of truth</strong> for
+single-node virtualization platform - the <strong>single source of truth</strong> for
 every request/response body, enum and error shape that crosses the API boundary
 between the backend and the frontend.
 </p>

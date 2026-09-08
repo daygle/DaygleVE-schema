@@ -4,7 +4,7 @@
 //! a cron timetable and prunes the oldest automatic snapshots so at most `keep`
 //! of them are retained. Scheduled snapshots are named with a recognizable
 //! `auto-<timestamp>` prefix so retention only ever removes snapshots this
-//! schedule created — manual snapshots are never touched. Cron expressions are
+//! schedule created - manual snapshots are never touched. Cron expressions are
 //! standard 5-field and evaluated in UTC.
 
 use serde::{Deserialize, Serialize};

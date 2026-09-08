@@ -1,7 +1,7 @@
 {
   "name": "@daygleve/schema",
   "version": "1.0.0",
-  "description": "Shared API types for the DaygleVE virtualization platform (generated TypeScript bindings). Types only — no business logic, no UI.",
+  "description": "Shared API types for the DaygleVE virtualization platform (generated TypeScript bindings). Types only - no business logic, no UI.",
   "license": "Apache-2.0",
   "type": "module",
   "types": "./generated/typescript/index.ts",

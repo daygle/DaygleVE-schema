@@ -3,7 +3,7 @@ name = "daygleve-schema"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Shared API type definitions for the DaygleVE virtualization platform. Types only — no business logic, no UI."
+description = "Shared API type definitions for the DaygleVE virtualization platform. Types only - no business logic, no UI."
 repository = "https://github.com/daygle/DaygleVE-schema"
 
 [dependencies]
