@@ -88,6 +88,8 @@ export type Permission =
   | "operations_write"
   | "backup_read"
   | "backup_write"
+  | "pool_read"
+  | "pool_write"
   | "user_admin";
 
 export interface LoginRequest {
