@@ -397,6 +397,7 @@ export interface VmSummary {
   memory_mib: number;
   template: boolean;
   autostart: boolean;
+  tags?: string[];
   created_at: Timestamp;
 }
 
@@ -418,6 +419,7 @@ export interface Vm {
   template: boolean;
   autostart: boolean;
   startup_order?: number;
+  tags?: string[];
   created_at: Timestamp;
   updated_at?: Timestamp;
 }
@@ -439,6 +441,7 @@ export interface CreateVmRequest {
   template: boolean;
   autostart: boolean;
   startup_order?: number;
+  tags?: string[];
 }
 
 export interface UpdateVmRequest {
@@ -455,6 +458,7 @@ export interface UpdateVmRequest {
   template?: boolean;
   autostart?: boolean;
   startup_order?: number;
+  tags?: string[];
 }
 
 export interface VmPowerRequest {
@@ -536,6 +540,7 @@ export interface LxcSummary {
   state: LxcState;
   vcpus: number;
   memory_mib: number;
+  tags?: string[];
   created_at: Timestamp;
 }
 
@@ -551,6 +556,7 @@ export interface Lxc {
   mounts?: LxcMount[];
   unprivileged: boolean;
   description?: string;
+  tags?: string[];
   created_at: Timestamp;
   updated_at?: Timestamp;
 }
@@ -566,6 +572,7 @@ export interface CreateLxcRequest {
   mounts?: LxcMount[];
   unprivileged: boolean;
   description?: string;
+  tags?: string[];
   start: boolean;
 }
 
@@ -574,6 +581,7 @@ export interface UpdateLxcRequest {
   vcpus?: number;
   memory_mib?: number;
   description?: string;
+  tags?: string[];
 }
 
 export interface LxcPowerRequest {

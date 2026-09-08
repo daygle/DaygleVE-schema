@@ -149,6 +149,9 @@ pub struct VmSummary {
     /// Start automatically on host boot.
     #[serde(default)]
     pub autostart: bool,
+    /// Free-form organizational tags (surfaced for filtering/badging).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     pub created_at: Timestamp,
 }
 
@@ -203,6 +206,9 @@ pub struct Vm {
     /// an explicit order start last. Only meaningful when `autostart` is set.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub startup_order: Option<u32>,
+    /// Free-form organizational tags for filtering and grouping in the UI.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     pub created_at: Timestamp,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<Timestamp>,
@@ -263,6 +269,9 @@ pub struct CreateVmRequest {
     /// Requires the VM to be stopped when changing.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cloud_init: Option<CloudInitRequest>,
+    /// Free-form organizational tags.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
 }
 
 /// Per-NIC firewall rules applied on the host (nftables) for the guest's traffic.
@@ -393,6 +402,9 @@ pub struct UpdateVmRequest {
     /// Autostart ordering: lower numbers start first.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub startup_order: Option<u32>,
+    /// Replace the VM's organizational tags. Applies live (no restart needed).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
 }
 
 /// Response from `POST /api/v1/vms/{id}/console` — a short-lived noVNC ticket.
