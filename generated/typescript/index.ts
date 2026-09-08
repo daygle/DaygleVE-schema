@@ -235,6 +235,10 @@ export interface BackupPlan {
   destination: string;
   interval_secs?: number;
   retention_count: number;
+  /** Snapshot tag used as the incremental base for `zfs send -i`. `None`
+   * sends full streams. Each artifact is an independent delta against the
+   * same fixed base, so artifacts stay individually restorable. */
+  from_snapshot?: string;
   verify: boolean;
   enabled: boolean;
   created_at: Timestamp;
@@ -250,6 +254,9 @@ export interface CreateBackupPlanRequest {
   destination?: string;
   interval_secs?: number;
   retention_count?: number;
+  /** Snapshot tag for incremental `zfs send -i` runs; omit for full sends.
+   * The base must already exist on every source dataset when a run starts. */
+  from_snapshot?: string;
   verify?: boolean;
   enabled?: boolean;
 }
@@ -257,6 +264,10 @@ export interface CreateBackupPlanRequest {
 export interface UpdateBackupPlanRequest {
   interval_secs?: number;
   retention_count?: number;
+  /** Switch the plan between full and incremental sends, or change the
+   * incremental base tag. The base must exist on every source dataset at
+   * the next run. */
+  from_snapshot?: string;
   verify?: boolean;
   enabled?: boolean;
 }
@@ -264,6 +275,10 @@ export interface UpdateBackupPlanRequest {
 export interface BackupFile {
   dataset: string;
   snapshot: string;
+  /** For incremental streams, the `dataset@tag` base the delta was sent
+   * against. Restoring this file requires the target to already contain
+   * that snapshot (or an earlier backup to be received first). */
+  incremental_from?: string;
   path: string;
   size_bytes: number;
   sha256: string;
@@ -283,6 +298,9 @@ export interface BackupArtifact {
 export interface RestoreBackupRequest {
   target_id?: string;
   force: boolean;
+  /** Restore an incremental stream by first receiving the base stream from
+   * the artifact that produced it, then this delta. Omit for full streams. */
+  base_artifact_id?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -589,6 +607,103 @@ export interface VmPowerRequest {
   action: VmPowerAction;
 }
 
+/** Response from `POST /api/v1/vms/{id}/power` with extended guest info. */
+export interface VmPowerResponse {
+  /** The VM after the power action. */
+  vm: Vm;
+  /** Guest IP addresses reported by the QEMU guest agent, when the agent is
+   * enabled and the guest is running. Absent when the agent is not enabled or
+   * the guest is not running. */
+  guest_ips?: string[];
+}
+
+/** Response from `GET /api/v1/vms/{id}/guest-agent` — guest agent status and
+ * reported guest info. */
+export interface GuestAgentInfo {
+  /** Whether the guest agent channel is enabled on this VM. */
+  enabled: boolean;
+  /** Whether the guest agent is currently connected (guest responded). Only
+   * meaningful when `enabled` is true. */
+  connected: boolean;
+  /** Guest OS info reported by the agent, when connected. */
+  guest_os?: string;
+  /** Guest IP addresses reported by the agent, when connected. */
+  guest_ips?: string[];
+}
+
+/** QEMU guest agent integration request / state. */
+export interface GuestAgentConfig {
+  /** Whether the guest agent channel is enabled for this VM. */
+  enabled: boolean;
+}
+
+/** Network configuration for cloud-init. */
+export interface CloudInitNetwork {
+  /** Guest-side interface name (e.g. `eth0`). */
+  interface: string;
+  /** IPv4 address in CIDR notation (e.g. `192.168.1.10/24`). */
+  address: string;
+  /** IPv4 gateway. */
+  gateway?: string;
+  /** Optional DNS servers. */
+  dns?: string[];
+}
+
+/** Cloud-init/automated provisioning request. When present on create/update, a
+ * NoCloud seed ISO is generated and attached to the VM as a second CD-ROM
+ * (`sdab`) so the guest can auto-configure hostname, network, authorized SSH
+ * keys, and the default user on first boot. */
+export interface CloudInitRequest {
+  /** Desired hostname pushed to the guest via cloud-init. */
+  hostname?: string;
+  /** Network config for the guest: interface name, address (CIDR), gateway. */
+  network?: CloudInitNetwork;
+  /** SSH public keys authorized for the default user. */
+  ssh_keys?: string[];
+  /** Default user created by cloud-init. When omitted, a platform default
+   * (`debian`, `ubuntu`, etc.) is used depending on the guest OS. */
+  default_user?: string;
+  /** Whether to inject a root password (base64-encoded plaintext). Omitting it
+   * means no password is set and SSH-key-only auth is the default. */
+  root_password?: string;
+}
+
+export type VmFirewallDirection = "in" | "out";
+
+export type VmFirewallAction =
+  | "accept"
+  | "drop"
+  | "accept_all"
+  | "drop_all";
+
+/** One per-NIC firewall rule applied on the host (nftables) for the guest's
+ * traffic. Rules are evaluated per-bridge in the guest's forward chain. */
+export interface VmFirewallRule {
+  /** Direction of traffic this rule applies to. */
+  direction: VmFirewallDirection;
+  /** Action when the rule matches. */
+  action: VmFirewallAction;
+  /** CIDR the rule matches on (source for inbound, destination for outbound).
+   * Required unless the action is `accept_all` / `drop_all` style; advisory
+   * when absent. */
+  cidr?: string;
+  /** Optional human label for the rule (UI-only; not used by the host). */
+  description?: string;
+}
+
+/** Guest firewall configuration. When `enabled` is true, the host applies an
+ * nftables per-VM chain (matched on the VM's NIC MAC addresses) that filters
+ * the guest's forwarded traffic. When disabled (the default), the guest is
+ * unrestricted on its bridge. */
+export interface VmFirewall {
+  /** Whether host-side filtering is active for this VM. */
+  enabled: boolean;
+  /** Ordered rules for the VM. With `enabled=true`, traffic that matches no
+   * rule is dropped in both directions (default deny); return traffic for
+   * established connections is always allowed. */
+  rules?: VmFirewallRule[];
+}
+
 export interface ConsoleTicket {
   websocket_path: string;
   ticket: string;
@@ -609,10 +724,39 @@ export interface VmSnapshot {
   created_at: Timestamp;
 }
 
+/** Snapshot capture type. */
+export type VmSnapshotType = "disk" | "ram";
+
 /** Body for `POST /api/v1/vms/{id}/snapshots` — capture a new VM snapshot. */
 export interface CreateVmSnapshotRequest {
   name: string;
   description?: string;
+  /** Capture method. Defaults to `disk`. */
+  snapshot_type?: VmSnapshotType;
+}
+
+/** Body for `POST /api/v1/vms/{id}/disks/{index}/resize` — grow a VM disk's
+ * backing zvol (and resize the running guest's block device when the VM is up). */
+export interface ResizeVmDiskRequest {
+  /** New size in GiB. Must be larger than the current size: shrinking a zvol
+   * is rejected because it destroys data beyond the new boundary. */
+  size_gib: number;
+}
+
+/** Body for `POST /api/v1/vms/{id}/usb-devices` — hot-attach a host USB
+ * device to a VM by vendor:product id, mirroring the disk hotplug API. */
+export interface AttachVmUsbRequest {
+  /** USB vendor id, four hex digits. */
+  vendor_id: string;
+  /** USB product id, four hex digits. */
+  product_id: string;
+}
+
+/** Body for `POST /api/v1/vms/{id}/pci-devices` — hot-attach a host PCI
+ * function to a VM, mirroring the disk hotplug API. */
+export interface AttachVmPciRequest {
+  /** PCI address of the device to pass through, e.g. `0000:01:00.0`. */
+  pci_address: string;
 }
 
 /**
