@@ -31,6 +31,7 @@
 //! - [`pool`]  — resource pools grouping guests for organization.
 //! - [`schedule`] — cron-scheduled guest power actions.
 //! - [`snapshot_schedule`] — cron-scheduled snapshots with retention.
+//! - [`notification`] — email/webhook notification channels.
 //!
 //! [`DaygleVE-backend`]: https://github.com/daygle/DaygleVE-backend
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
@@ -44,6 +45,7 @@ pub mod lxc;
 pub mod lxc_snapshot;
 pub mod metrics;
 pub mod network;
+pub mod notification;
 pub mod operations;
 pub mod pci;
 pub mod pool;
