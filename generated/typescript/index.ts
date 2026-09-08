@@ -936,13 +936,24 @@ export interface CloneSnapshotRequest {
 // storage_file
 // ---------------------------------------------------------------------------
 
-export type StorageFileKind = "iso" | "ct_template";
+export type StorageFileKind = "iso" | "ct_template" | "disk_image";
 
 export interface StorageFile {
   name: string;
   path: string;
   size_bytes: number;
   kind: StorageFileKind;
+}
+
+export interface ImportDiskImageRequest {
+  image_name: string;
+  dataset: string;
+  size_gib?: number;
+}
+
+export interface ImportDiskImageResponse {
+  dataset: string;
+  size_gib: number;
 }
 
 // ---------------------------------------------------------------------------
