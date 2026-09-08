@@ -90,6 +90,8 @@ export type Permission =
   | "backup_write"
   | "pool_read"
   | "pool_write"
+  | "notification_read"
+  | "notification_write"
   | "user_admin";
 
 export interface LoginRequest {
@@ -871,6 +873,64 @@ export interface CreateVlanRequest {
   bridge: string;
   tag: number;
   name?: string;
+}
+
+// ---------------------------------------------------------------------------
+// notification
+// ---------------------------------------------------------------------------
+
+export type NotificationChannelKind = "email" | "webhook";
+
+export type NotificationEvent =
+  | "backup_succeeded"
+  | "backup_failed"
+  | "snapshot_failed"
+  | "power_action_failed"
+  | "test";
+
+export interface EmailSettings {
+  smtp_host: string;
+  smtp_port: number;
+  smtp_username?: string;
+  from_address: string;
+  to_addresses: string[];
+  starttls: boolean;
+}
+
+export interface WebhookSettings {
+  url: string;
+}
+
+export interface NotificationChannel {
+  id: ResourceId;
+  name: string;
+  kind: NotificationChannelKind;
+  enabled: boolean;
+  events: NotificationEvent[];
+  email?: EmailSettings;
+  webhook?: WebhookSettings;
+  has_secret: boolean;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+}
+
+export interface CreateNotificationChannelRequest {
+  name: string;
+  kind: NotificationChannelKind;
+  enabled?: boolean;
+  events: NotificationEvent[];
+  email?: EmailSettings;
+  webhook?: WebhookSettings;
+  secret?: string;
+}
+
+export interface UpdateNotificationChannelRequest {
+  name?: string;
+  enabled?: boolean;
+  events?: NotificationEvent[];
+  email?: EmailSettings;
+  webhook?: WebhookSettings;
+  secret?: string;
 }
 
 // ---------------------------------------------------------------------------

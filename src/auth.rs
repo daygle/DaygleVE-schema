@@ -105,6 +105,10 @@ pub enum Permission {
     PoolRead,
     /// Create, modify, and delete resource pools.
     PoolWrite,
+    /// View notification channels.
+    NotificationRead,
+    /// Create, modify, delete, and test notification channels.
+    NotificationWrite,
     UserAdmin,
 }
 
