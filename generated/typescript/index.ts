@@ -322,6 +322,48 @@ export interface PciAssignment {
 }
 
 // ---------------------------------------------------------------------------
+// pool
+// ---------------------------------------------------------------------------
+
+export interface ResourcePool {
+  id: ResourceId;
+  name: string;
+  comment?: string;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+}
+
+export interface ResourcePoolSummary {
+  id: ResourceId;
+  name: string;
+  comment?: string;
+  member_count: number;
+  created_at: Timestamp;
+}
+
+export type PoolMemberKind = "vm" | "lxc";
+
+export interface PoolMember {
+  kind: PoolMemberKind;
+  id: ResourceId;
+  name: string;
+}
+
+export interface ResourcePoolDetail {
+  pool: ResourcePool;
+  members: PoolMember[];
+}
+
+export interface CreateResourcePoolRequest {
+  name: string;
+  comment?: string;
+}
+
+export interface UpdateResourcePoolRequest {
+  comment?: string;
+}
+
+// ---------------------------------------------------------------------------
 // usb
 // ---------------------------------------------------------------------------
 
@@ -398,6 +440,7 @@ export interface VmSummary {
   template: boolean;
   autostart: boolean;
   tags?: string[];
+  pool?: string;
   created_at: Timestamp;
 }
 
@@ -420,6 +463,7 @@ export interface Vm {
   autostart: boolean;
   startup_order?: number;
   tags?: string[];
+  pool?: string;
   created_at: Timestamp;
   updated_at?: Timestamp;
 }
@@ -442,6 +486,7 @@ export interface CreateVmRequest {
   autostart: boolean;
   startup_order?: number;
   tags?: string[];
+  pool?: string;
 }
 
 export interface UpdateVmRequest {
@@ -459,6 +504,7 @@ export interface UpdateVmRequest {
   autostart?: boolean;
   startup_order?: number;
   tags?: string[];
+  pool?: string;
 }
 
 export interface VmPowerRequest {
@@ -541,6 +587,7 @@ export interface LxcSummary {
   vcpus: number;
   memory_mib: number;
   tags?: string[];
+  pool?: string;
   created_at: Timestamp;
 }
 
@@ -557,6 +604,7 @@ export interface Lxc {
   unprivileged: boolean;
   description?: string;
   tags?: string[];
+  pool?: string;
   created_at: Timestamp;
   updated_at?: Timestamp;
 }
@@ -573,6 +621,7 @@ export interface CreateLxcRequest {
   unprivileged: boolean;
   description?: string;
   tags?: string[];
+  pool?: string;
   start: boolean;
 }
 
@@ -582,6 +631,7 @@ export interface UpdateLxcRequest {
   memory_mib?: number;
   description?: string;
   tags?: string[];
+  pool?: string;
 }
 
 export interface LxcPowerRequest {
