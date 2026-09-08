@@ -30,6 +30,7 @@
 //! - [`operations`] — durable host-operation lifecycle and recovery records.
 //! - [`pool`]  — resource pools grouping guests for organization.
 //! - [`schedule`] — cron-scheduled guest power actions.
+//! - [`snapshot_schedule`] — cron-scheduled snapshots with retention.
 //!
 //! [`DaygleVE-backend`]: https://github.com/daygle/DaygleVE-backend
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
@@ -48,6 +49,7 @@ pub mod pci;
 pub mod pool;
 pub mod schedule;
 pub mod share;
+pub mod snapshot_schedule;
 pub mod storage;
 pub mod storage_file;
 pub mod usb;

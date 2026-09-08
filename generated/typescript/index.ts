@@ -405,6 +405,41 @@ export interface UpdatePowerScheduleRequest {
 }
 
 // ---------------------------------------------------------------------------
+// snapshot_schedule
+// ---------------------------------------------------------------------------
+
+export interface SnapshotSchedule {
+  id: ResourceId;
+  target_kind: ScheduleTarget;
+  target_id: ResourceId;
+  cron: string;
+  keep: number;
+  enabled: boolean;
+  description?: string;
+  last_run_at?: Timestamp;
+  last_result?: string;
+  next_run_at?: Timestamp;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+}
+
+export interface CreateSnapshotScheduleRequest {
+  target_kind: ScheduleTarget;
+  target_id: ResourceId;
+  cron: string;
+  keep: number;
+  enabled?: boolean;
+  description?: string;
+}
+
+export interface UpdateSnapshotScheduleRequest {
+  cron?: string;
+  keep?: number;
+  enabled?: boolean;
+  description?: string;
+}
+
+// ---------------------------------------------------------------------------
 // usb
 // ---------------------------------------------------------------------------
 
