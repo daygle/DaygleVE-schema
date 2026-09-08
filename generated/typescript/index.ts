@@ -807,6 +807,11 @@ export interface ImportDiskImageRequest {
   size_gib?: number;
 }
 
+export interface ImportDiskImageResponse {
+  dataset: string;
+  size_gib: number;
+}
+
 // ---------------------------------------------------------------------------
 // share
 // ---------------------------------------------------------------------------

@@ -43,6 +43,18 @@ pub struct ImportDiskImageRequest {
     pub size_gib: Option<u64>,
 }
 
+/// Result of a successful `POST /api/v1/storage/disk-images/import`: the new
+/// zvol now holds the image's contents and can back a VM disk.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ImportDiskImageResponse {
+    /// ZFS dataset of the created zvol, e.g. `tank/vm-imported-disk0`. Use this
+    /// as a VM disk's `dataset`.
+    pub dataset: String,
+    /// Provisioned size of the zvol in GiB.
+    pub size_gib: u64,
+}
+
 /// A file in one of the node's local upload libraries.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
