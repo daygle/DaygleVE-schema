@@ -449,6 +449,76 @@ paths:
           content:
             text/event-stream:
               schema: { $ref: "#/components/schemas/MetricsEvent" }
+  /metrics/guests:
+    get:
+      tags: [metrics]
+      summary: Latest retained per-guest (VM/container) samples. Requires `metrics_read`.
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/GuestMetricsSample" } } } } }
+  /metrics/history:
+    get:
+      tags: [metrics]
+      summary: >
+        Retained guest metrics history (7-day / 50k-sample retention), filtered
+        by `scope`, `guest_id`, `from`, `to`. Requires `metrics_read`.
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/GuestMetricsSample" } } } } }
+  /metrics/prometheus:
+    get:
+      tags: [metrics]
+      summary: Prometheus/OpenMetrics text export of the latest guest samples. Requires `metrics_read`.
+      responses:
+        "200":
+          description: text/plain OpenMetrics body.
+          content:
+            text/plain:
+              schema: { type: string }
+  /alerts:
+    get:
+      tags: [security]
+      summary: List metric-threshold alert rules. Requires `notification_read`.
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/AlertRule" } } } } }
+    post:
+      tags: [security]
+      summary: Create an alert rule. Requires `notification_write`.
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/AlertRule" } } } }
+  /alerts/{id}:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    get:
+      tags: [security]
+      summary: Read one alert rule. Requires `notification_read`.
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/AlertRule" } } } }
+    patch:
+      tags: [security]
+      summary: Update an alert rule. Requires `notification_write`.
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/AlertRule" } } } }
+    delete:
+      tags: [security]
+      summary: Delete an alert rule. Requires `notification_write`.
+      responses:
+        "204": { description: Deleted. }
+  /vms/{id}/disks/migrate:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [vms]
+      summary: >
+        Move one of the VM's disks to another ZFS dataset/pool (offline; the VM
+        must be stopped). Returns a 202 with the operation record.
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
+  /containers/{id}/rootfs/migrate:
+    parameters: [ { $ref: "#/components/parameters/Id" } ]
+    post:
+      tags: [containers]
+      summary: >
+        Move the container's rootfs dataset to another ZFS dataset/pool (the
+        container must be stopped). Returns a 202 with the operation record.
+      responses:
+        "202": { $ref: "#/components/responses/Operation" }
 
 # ---------------------------------------------------------------------------
 # Components. Schemas are summarised; the Rust types in `src/` are canonical.
@@ -470,6 +540,36 @@ components:
     BrokerMode:
       type: string
       enum: [direct, delegated, local]
+    MetricsScope:
+      type: string
+      enum: [node, vm, lxc]
+    GuestMetricsSample:
+      type: object
+      required: [scope, metrics]
+      properties:
+        scope: { $ref: "#/components/schemas/MetricsScope" }
+        metrics: { $ref: "#/components/schemas/GuestMetrics" }
+    AlertScope:
+      type: string
+      enum: [node, vm, lxc]
+    AlertMetric:
+      type: string
+      enum: [cpu_pct, memory_pct, disk_read_mib_s, disk_write_mib_s, net_rx_mib_s, net_tx_mib_s, pool_used_pct]
+    AlertRule:
+      type: object
+      required: [id, name, enabled, scope, metric, threshold, sustain_ticks, cooldown_secs, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/ResourceId" }
+        name: { type: string }
+        enabled: { type: boolean }
+        scope: { $ref: "#/components/schemas/AlertScope" }
+        guest_id: { $ref: "#/components/schemas/ResourceId" }
+        metric: { $ref: "#/components/schemas/AlertMetric" }
+        threshold: { type: number }
+        sustain_ticks: { type: integer, format: int32 }
+        cooldown_secs: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     HostExecution:
       type: string
       enum: [api, broker, none]

@@ -34,6 +34,8 @@ pub enum NotificationEvent {
     SnapshotFailed,
     /// A scheduled power action failed to apply.
     PowerActionFailed,
+    /// A metric-threshold alert rule fired.
+    ThresholdBreached,
     /// A manual test message (from the "send test" action).
     Test,
 }
@@ -122,7 +124,6 @@ impl std::fmt::Debug for CreateNotificationChannelRequest {
 fn default_true() -> bool {
     true
 }
-
 /// Body for `PATCH /api/v1/notifications/{id}`. Only present fields change; the
 /// channel kind is immutable. `secret: Some("")` clears the stored secret.
 ///
@@ -155,4 +156,117 @@ impl std::fmt::Debug for UpdateNotificationChannelRequest {
             .field("secret", &self.secret.as_ref().map(|_| "<redacted>"))
             .finish()
     }
+}
+
+/// Metric a threshold alert rule watches.
+#[typeshare]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertMetric {
+    /// Guest or node CPU utilisation, 0-100.
+    CpuPct,
+    /// Guest memory usage relative to its limit, 0-100. Node rules compare
+    /// against total physical memory.
+    MemoryPct,
+    /// Guest disk read throughput in MiB/s (aggregate across disks).
+    DiskReadMibS,
+    /// Guest disk write throughput in MiB/s (aggregate across disks).
+    DiskWriteMibS,
+    /// Guest network receive throughput in MiB/s.
+    NetRxMibS,
+    /// Guest network transmit throughput in MiB/s.
+    NetTxMibS,
+    /// ZFS pool allocated capacity, 0-100. Scope is the node; `guest_id`
+    /// selects the pool name when set.
+    PoolUsedPct,
+}
+
+/// Which sample source a rule evaluates against.
+#[typeshare]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertScope {
+    /// Node-wide metrics and pool capacity.
+    Node,
+    /// A single VM (all VMs when `guest_id` is unset).
+    Vm,
+    /// A single container (all containers when `guest_id` is unset).
+    Lxc,
+}
+
+/// A metric-threshold alert rule: notify when a metric crosses a threshold and
+/// stays there for a sustained window. Rules are evaluated on the background
+/// metrics tick; a rule that fires re-notifies only after its cooldown passes.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AlertRule {
+    pub id: ResourceId,
+    pub name: String,
+    pub enabled: bool,
+    pub scope: AlertScope,
+    /// Restrict the rule to one guest (VM/container id) or pool name. Unset
+    /// means the rule applies to every guest of the scope.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guest_id: Option<ResourceId>,
+    pub metric: AlertMetric,
+    /// Fire when the observed value is `>=` this threshold. Units depend on
+    /// `metric` (percent for `*_pct`, MiB/s for throughput).
+    pub threshold: f64,
+    /// The metric must stay at or above the threshold this many consecutive
+    /// evaluation ticks before the rule fires. 0 or 1 fires on the first
+    /// breach.
+    #[serde(default)]
+    pub sustain_ticks: u32,
+    /// Minimum seconds between two notifications for the same rule (and guest).
+    #[serde(default = "default_cooldown_secs")]
+    pub cooldown_secs: u64,
+    pub created_at: Timestamp,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<Timestamp>,
+}
+
+fn default_cooldown_secs() -> u64 {
+    300
+}
+
+/// Body for `POST /api/v1/alerts`.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CreateAlertRuleRequest {
+    pub name: String,
+    #[serde(default = "default_rule_enabled")]
+    pub enabled: bool,
+    pub scope: AlertScope,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guest_id: Option<ResourceId>,
+    pub metric: AlertMetric,
+    pub threshold: f64,
+    #[serde(default)]
+    pub sustain_ticks: u32,
+    #[serde(default = "default_cooldown_secs")]
+    pub cooldown_secs: u64,
+}
+
+fn default_rule_enabled() -> bool {
+    true
+}
+
+/// Body for `PATCH /api/v1/alerts/{id}`. Only present fields change.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct UpdateAlertRuleRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guest_id: Option<Option<ResourceId>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metric: Option<AlertMetric>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub threshold: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sustain_ticks: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cooldown_secs: Option<u64>,
 }

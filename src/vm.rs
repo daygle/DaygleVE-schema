@@ -486,6 +486,20 @@ pub struct ResizeVmDiskRequest {
     pub size_gib: u64,
 }
 
+/// Body for `POST /api/v1/vms/{id}/disks/migrate` - move one of the VM's disks
+/// to a different ZFS dataset (possibly on another pool). The VM must be
+/// stopped; the data is streamed with `zfs send | receive` and the old dataset
+/// is destroyed after the copy succeeds.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct MigrateVmDiskRequest {
+    /// Index of the disk in the VM's disk list to move.
+    pub disk_index: usize,
+    /// Full target ZFS dataset path, e.g. `slowpool/vms/web01-disk0`. It must
+    /// not already exist.
+    pub target_dataset: String,
+}
+
 /// Body for `POST /api/v1/vms/{id}/clone` - copy an existing VM into a new one.
 /// The clone gets a fresh id and freshly-generated NIC MACs; its disks are ZFS
 /// clones of the source's disks (taken from a snapshot of the source). Any GPU

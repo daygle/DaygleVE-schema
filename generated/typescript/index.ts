@@ -743,6 +743,15 @@ export interface ResizeVmDiskRequest {
   size_gib: number;
 }
 
+export interface MigrateVmDiskRequest {
+  disk_index: number;
+  target_dataset: string;
+}
+
+export interface MigrateLxcRootfsRequest {
+  target_dataset: string;
+}
+
 /** Body for `POST /api/v1/vms/{id}/usb-devices` - hot-attach a host USB
  * device to a VM by vendor:product id, mirroring the disk hotplug API. */
 export interface AttachVmUsbRequest {
@@ -1074,6 +1083,7 @@ export type NotificationEvent =
   | "backup_failed"
   | "snapshot_failed"
   | "power_action_failed"
+  | "threshold_breached"
   | "test";
 
 export interface EmailSettings {
@@ -1119,6 +1129,52 @@ export interface UpdateNotificationChannelRequest {
   email?: EmailSettings;
   webhook?: WebhookSettings;
   secret?: string;
+}
+
+export type AlertMetric =
+  | "cpu_pct"
+  | "memory_pct"
+  | "disk_read_mib_s"
+  | "disk_write_mib_s"
+  | "net_rx_mib_s"
+  | "net_tx_mib_s"
+  | "pool_used_pct";
+
+export type AlertScope = "node" | "vm" | "lxc";
+
+export interface AlertRule {
+  id: ResourceId;
+  name: string;
+  enabled: boolean;
+  scope: AlertScope;
+  guest_id?: ResourceId;
+  metric: AlertMetric;
+  threshold: number;
+  sustain_ticks: number;
+  cooldown_secs: number;
+  created_at: Timestamp;
+  updated_at?: Timestamp;
+}
+
+export interface CreateAlertRuleRequest {
+  name: string;
+  enabled?: boolean;
+  scope: AlertScope;
+  guest_id?: ResourceId;
+  metric: AlertMetric;
+  threshold: number;
+  sustain_ticks?: number;
+  cooldown_secs?: number;
+}
+
+export interface UpdateAlertRuleRequest {
+  name?: string;
+  enabled?: boolean;
+  guest_id?: ResourceId | null;
+  metric?: AlertMetric;
+  threshold?: number;
+  sustain_ticks?: number;
+  cooldown_secs?: number;
 }
 
 // ---------------------------------------------------------------------------

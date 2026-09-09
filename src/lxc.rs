@@ -152,6 +152,18 @@ fn default_true() -> bool {
     true
 }
 
+/// Body for `POST /api/v1/containers/{id}/rootfs/migrate` - move the
+/// container's rootfs dataset to a different ZFS dataset (possibly on another
+/// pool). The container must be stopped; the data is streamed with `zfs send |
+/// receive` and the old dataset is destroyed after the copy succeeds.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct MigrateLxcRootfsRequest {
+    /// Full target ZFS dataset path, e.g. `slowpool/lxc/ct1`. It must not
+    /// already exist.
+    pub target_dataset: String,
+}
+
 /// Body for `PATCH /api/v1/containers/{id}`.
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
