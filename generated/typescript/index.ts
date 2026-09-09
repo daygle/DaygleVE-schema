@@ -897,6 +897,39 @@ export interface Pool {
   fragmentation_pct: number;
 }
 
+export interface RawDisk {
+  path: string;
+  model: string;
+  serial?: string;
+  size_bytes: number;
+  rotational: boolean;
+  in_use: boolean;
+}
+
+export interface SmartReport {
+  path: string;
+  supported: boolean;
+  passed?: boolean;
+  health?: string;
+  temperature_c?: number;
+  power_on_hours?: number;
+  checked_at: Timestamp;
+}
+
+export type PoolLayout = "stripe" | "mirror" | "raidz1" | "raidz2" | "raidz3";
+
+export interface CreatePoolRequest {
+  name: string;
+  layout: PoolLayout;
+  devices: string[];
+  force: boolean;
+}
+
+export interface WipeDiskRequest {
+  path: string;
+  confirm: string;
+}
+
 export interface Dataset {
   id: ResourceId;
   name: string;
@@ -1126,6 +1159,11 @@ export interface MetricsEvent {
   scope: MetricsScope;
   node?: NodeMetrics;
   guest?: GuestMetrics;
+}
+
+export interface GuestMetricsSample {
+  scope: MetricsScope;
+  metrics: GuestMetrics;
 }
 
 // ---------------------------------------------------------------------------

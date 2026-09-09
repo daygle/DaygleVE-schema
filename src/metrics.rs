@@ -68,3 +68,11 @@ pub struct MetricsEvent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub guest: Option<GuestMetrics>,
 }
+
+/// A persisted guest metrics sample retained for historical queries.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GuestMetricsSample {
+    pub scope: MetricsScope,
+    pub metrics: GuestMetrics,
+}

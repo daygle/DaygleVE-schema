@@ -30,6 +30,68 @@ pub struct Pool {
     pub fragmentation_pct: u8,
 }
 
+/// A physical block device visible to the host and eligible for pool creation.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct RawDisk {
+    /// Device node, for example `/dev/sdb`.
+    pub path: String,
+    pub model: String,
+    pub serial: Option<String>,
+    pub size_bytes: u64,
+    pub rotational: bool,
+    /// Whether the device currently appears to be part of a ZFS pool.
+    pub in_use: bool,
+}
+
+/// SMART health information for a physical block device.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SmartReport {
+    pub path: String,
+    pub supported: bool,
+    pub passed: Option<bool>,
+    pub health: Option<String>,
+    pub temperature_c: Option<i32>,
+    pub power_on_hours: Option<u64>,
+    pub checked_at: Timestamp,
+}
+
+/// ZFS pool topology supported by the pool-creation API.
+#[typeshare]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum PoolLayout {
+    Stripe,
+    Mirror,
+    Raidz1,
+    Raidz2,
+    Raidz3,
+}
+
+/// Body for `POST /api/v1/storage/pools`.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CreatePoolRequest {
+    /// Single-component ZFS pool name.
+    pub name: String,
+    pub layout: PoolLayout,
+    /// Physical device nodes, such as `/dev/sdb`.
+    pub devices: Vec<String>,
+    /// Permit `zpool create -f` after the backend's in-use checks pass.
+    #[serde(default)]
+    pub force: bool,
+}
+
+/// Body for `POST /api/v1/storage/disks/wipe`.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct WipeDiskRequest {
+    pub path: String,
+    /// Must exactly equal `path`; prevents accidental destructive requests.
+    pub confirm: String,
+}
+
 /// Kind of ZFS dataset.
 #[typeshare]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
