@@ -12,6 +12,11 @@ use crate::common::{ResourceId, Timestamp};
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
+    /// Current TOTP (or recovery) code, required only when the account has
+    /// two-factor authentication enabled. Omit on the first attempt; a
+    /// `two_factor_required` error tells the client to prompt for it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub totp_code: Option<String>,
 }
 
 impl std::fmt::Debug for LoginRequest {
@@ -129,6 +134,10 @@ pub struct CurrentUser {
     /// True when the account is still on a seeded/temporary password and must
     /// set a new one (the UI should force a password change).
     pub must_change_password: bool,
+    /// True when the account has two-factor authentication (TOTP) enabled, so
+    /// the UI can show its enrollment state without a separate request.
+    #[serde(default)]
+    pub two_factor_enabled: bool,
 }
 
 /// Body for `POST /api/v1/users` - create a user account.
