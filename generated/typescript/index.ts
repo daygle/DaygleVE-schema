@@ -349,6 +349,42 @@ export interface OperationRecord {
 }
 
 // ---------------------------------------------------------------------------
+// firewall
+// ---------------------------------------------------------------------------
+
+/** Default verdict for inbound host traffic that matches no rule. */
+export type FirewallPolicy = "accept" | "drop";
+
+/** Verdict applied when a host-firewall rule matches. */
+export type FirewallAction = "accept" | "drop" | "reject";
+
+/** Transport a host-firewall rule matches. `any` ignores ports. */
+export type FirewallProtocol = "tcp" | "udp" | "icmp" | "any";
+
+/** One inbound host-firewall rule. */
+export interface HostFirewallRule {
+  action: FirewallAction;
+  protocol: FirewallProtocol;
+  source_cidr?: string;
+  dest_port?: number;
+  description?: string;
+}
+
+/** Host (node) firewall configuration. */
+export interface HostFirewall {
+  enabled: boolean;
+  default_input_policy?: FirewallPolicy;
+  rules?: HostFirewallRule[];
+}
+
+/** Body for `PUT /api/v1/network/firewall` — replace the host firewall config. */
+export interface UpdateHostFirewallRequest {
+  enabled: boolean;
+  default_input_policy?: FirewallPolicy;
+  rules?: HostFirewallRule[];
+}
+
+// ---------------------------------------------------------------------------
 // backup
 // ---------------------------------------------------------------------------
 

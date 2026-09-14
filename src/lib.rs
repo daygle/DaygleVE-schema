@@ -43,6 +43,7 @@ pub mod auth;
 pub mod backup;
 pub mod broker;
 pub mod common;
+pub mod firewall;
 pub mod gpu;
 pub mod lxc;
 pub mod lxc_snapshot;
