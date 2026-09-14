@@ -26,6 +26,7 @@ export type ErrorCode =
   | "conflict"
   | "hypervisor_error"
   | "rate_limited"
+  | "two_factor_required"
   | "internal";
 
 /** A single field-level validation problem inside an `ApiError`. */
@@ -100,6 +101,7 @@ export type Permission =
 export interface LoginRequest {
   username: string;
   password: string;
+  totp_code?: string;
 }
 
 export interface User {
@@ -120,6 +122,7 @@ export interface CurrentUser {
   user: User;
   permissions: Permission[];
   must_change_password: boolean;
+  two_factor_enabled?: boolean;
 }
 
 /** Body for `POST /api/v1/users` - create a user account. */
@@ -145,6 +148,41 @@ export interface UpdateUserRequest {
 export interface ChangePasswordRequest {
   current_password: string;
   new_password: string;
+}
+
+// ---------------------------------------------------------------------------
+// two_factor
+// ---------------------------------------------------------------------------
+
+/**
+ * Response to `POST /api/v1/auth/2fa/setup`. Carries the freshly-generated
+ * shared secret needed to configure an authenticator app. The second factor is
+ * not active until confirmed.
+ */
+export interface TwoFactorSetupResponse {
+  secret: string;
+  otpauth_uri: string;
+}
+
+/**
+ * Body for `POST /api/v1/auth/2fa/confirm` - finish enrollment by proving the
+ * authenticator is configured correctly.
+ */
+export interface ConfirmTwoFactorRequest {
+  code: string;
+}
+
+/**
+ * Response to `POST /api/v1/auth/2fa/confirm`. Carries one-time recovery codes,
+ * shown only here.
+ */
+export interface TwoFactorEnabledResponse {
+  recovery_codes: string[];
+}
+
+/** Body for `POST /api/v1/auth/2fa/disable` - turn off the second factor. */
+export interface DisableTwoFactorRequest {
+  code: string;
 }
 
 // ---------------------------------------------------------------------------

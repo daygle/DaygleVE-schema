@@ -57,6 +57,7 @@ pub mod share;
 pub mod snapshot_schedule;
 pub mod storage;
 pub mod storage_file;
+pub mod two_factor;
 pub mod usb;
 pub mod vm;
 

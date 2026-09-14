@@ -72,6 +72,10 @@ pub enum ErrorCode {
     /// The caller is rate limited (e.g. repeated failed logins) and must
     /// retry later.
     RateLimited,
+    /// The password was accepted but a second factor (TOTP or recovery code) is
+    /// required to complete the login. The client should prompt for the code
+    /// and retry. Not treated as a failed attempt by the login throttle.
+    TwoFactorRequired,
     /// Anything unclassified / internal.
     Internal,
 }
