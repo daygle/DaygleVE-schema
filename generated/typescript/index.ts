@@ -92,6 +92,8 @@ export type Permission =
   | "pool_write"
   | "notification_read"
   | "notification_write"
+  | "tls_read"
+  | "tls_write"
   | "user_admin";
 
 export interface LoginRequest {
@@ -142,6 +144,47 @@ export interface UpdateUserRequest {
 export interface ChangePasswordRequest {
   current_password: string;
   new_password: string;
+}
+
+// ---------------------------------------------------------------------------
+// acme
+// ---------------------------------------------------------------------------
+
+/** The ACME directory URL for Let's Encrypt's production environment. */
+export const LETS_ENCRYPT_PRODUCTION = "https://acme-v02.api.letsencrypt.org/directory";
+
+/** The ACME directory URL for Let's Encrypt's staging environment. */
+export const LETS_ENCRYPT_STAGING = "https://acme-staging-v02.api.letsencrypt.org/directory";
+
+export type AcmeState = "disabled" | "pending" | "active" | "error";
+
+export interface AcmeConfig {
+  enabled: boolean;
+  directory_url: string;
+  contact_email: string;
+  domains: string[];
+  terms_agreed: boolean;
+  renewal_days: number;
+}
+
+export interface UpdateAcmeConfigRequest {
+  enabled: boolean;
+  directory_url: string;
+  contact_email: string;
+  domains: string[];
+  terms_agreed: boolean;
+  renewal_days?: number;
+}
+
+export interface AcmeStatus {
+  config: AcmeConfig;
+  state: AcmeState;
+  certificate_domains?: string[];
+  issued_at?: Timestamp;
+  expires_at?: Timestamp;
+  last_renewal_at?: Timestamp;
+  last_error?: string;
+  account_registered: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -109,6 +109,10 @@ pub enum Permission {
     NotificationRead,
     /// Create, modify, delete, and test notification channels.
     NotificationWrite,
+    /// View the ACME/TLS certificate configuration and status.
+    TlsRead,
+    /// Change the ACME/TLS configuration and trigger certificate issuance.
+    TlsWrite,
     UserAdmin,
 }
 
