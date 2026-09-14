@@ -37,6 +37,7 @@
 //! [`DaygleVE-frontend`]: https://github.com/daygle/DaygleVE-frontend
 
 pub mod acme;
+pub mod api_token;
 pub mod auth;
 pub mod backup;
 pub mod broker;

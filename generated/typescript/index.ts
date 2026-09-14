@@ -188,6 +188,32 @@ export interface AcmeStatus {
 }
 
 // ---------------------------------------------------------------------------
+// api_token
+// ---------------------------------------------------------------------------
+
+export interface ApiToken {
+  id: ResourceId;
+  name: string;
+  prefix: string;
+  permissions: Permission[];
+  owner: string;
+  created_at: Timestamp;
+  expires_at?: Timestamp;
+  last_used_at?: Timestamp;
+}
+
+export interface CreateApiTokenRequest {
+  name: string;
+  permissions?: Permission[];
+  expires_in_days?: number;
+}
+
+export interface CreateApiTokenResponse {
+  token: string;
+  api_token: ApiToken;
+}
+
+// ---------------------------------------------------------------------------
 // operations
 // ---------------------------------------------------------------------------
 
