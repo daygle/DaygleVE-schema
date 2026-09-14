@@ -1087,6 +1087,25 @@ export interface ImportDiskImageResponse {
   size_gib: number;
 }
 
+export interface FetchDiskImageRequest {
+  url: string;
+  name?: string;
+}
+
+export type DiskImageFetchState = "downloading" | "completed" | "failed";
+
+export interface DiskImageFetch {
+  id: ResourceId;
+  url: string;
+  name: string;
+  state: DiskImageFetchState;
+  bytes_downloaded: number;
+  total_bytes?: number;
+  error?: string;
+  started_at: Timestamp;
+  finished_at?: Timestamp;
+}
+
 // ---------------------------------------------------------------------------
 // share
 // ---------------------------------------------------------------------------

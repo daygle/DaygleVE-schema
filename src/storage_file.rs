@@ -10,6 +10,8 @@
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
+use crate::common::{ResourceId, Timestamp};
+
 /// Which local library a file belongs to.
 #[typeshare]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -53,6 +55,60 @@ pub struct ImportDiskImageResponse {
     pub dataset: String,
     /// Provisioned size of the zvol in GiB.
     pub size_gib: u64,
+}
+
+/// Body for `POST /api/v1/storage/disk-images/fetch` — download a disk image
+/// from a URL into the node's disk-image library, where it can then be imported
+/// into a zvol.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct FetchDiskImageRequest {
+    /// `http`/`https` URL of the disk image (e.g. a cloud image mirror).
+    pub url: String,
+    /// File name to save as; must carry a supported disk-image extension
+    /// (`.qcow2`, `.img`, `.raw`, …). When omitted, it is derived from the URL's
+    /// last path segment.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+/// Lifecycle state of a disk-image URL fetch.
+#[typeshare]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum DiskImageFetchState {
+    /// The download is in progress.
+    Downloading,
+    /// The download finished and the file is in the disk-image library.
+    Completed,
+    /// The download failed; see `error`.
+    Failed,
+}
+
+/// Status of an in-progress or recently finished disk-image URL fetch. Fetch
+/// status is tracked in memory and surfaced by
+/// `GET /api/v1/storage/disk-images/fetches`; completed files also appear in
+/// the disk-image library listing.
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct DiskImageFetch {
+    pub id: ResourceId,
+    /// Source URL being downloaded.
+    pub url: String,
+    /// Destination file name in the disk-image library.
+    pub name: String,
+    pub state: DiskImageFetchState,
+    /// Bytes downloaded so far.
+    pub bytes_downloaded: u64,
+    /// Total size from the server's `Content-Length`, when advertised.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub total_bytes: Option<u64>,
+    /// Failure detail when `state` is `failed`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+    pub started_at: Timestamp,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub finished_at: Option<Timestamp>,
 }
 
 /// A file in one of the node's local upload libraries.
