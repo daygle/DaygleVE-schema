@@ -94,6 +94,7 @@ export type Permission =
   | "notification_write"
   | "tls_read"
   | "tls_write"
+  | "audit_read"
   | "user_admin";
 
 export interface LoginRequest {
@@ -211,6 +212,25 @@ export interface CreateApiTokenRequest {
 export interface CreateApiTokenResponse {
   token: string;
   api_token: ApiToken;
+}
+
+// ---------------------------------------------------------------------------
+// audit
+// ---------------------------------------------------------------------------
+
+export type AuditOutcome = "success" | "failure";
+
+export interface AuditEvent {
+  id: ResourceId;
+  at: Timestamp;
+  actor_id?: ResourceId;
+  actor: string;
+  action: string;
+  resource_type?: string;
+  resource_id?: string;
+  outcome: AuditOutcome;
+  message?: string;
+  source_ip?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -38,6 +38,7 @@
 
 pub mod acme;
 pub mod api_token;
+pub mod audit;
 pub mod auth;
 pub mod backup;
 pub mod broker;
