@@ -113,6 +113,8 @@ pub enum Permission {
     TlsRead,
     /// Change the ACME/TLS configuration and trigger certificate issuance.
     TlsWrite,
+    /// Read the security audit log.
+    AuditRead,
     UserAdmin,
 }
 
