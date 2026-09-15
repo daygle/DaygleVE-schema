@@ -123,6 +123,33 @@ export interface CurrentUser {
   permissions: Permission[];
   must_change_password: boolean;
   two_factor_enabled?: boolean;
+  grants?: PathGrant[];
+}
+
+/** One path-scoped access-control entry. */
+export interface AclEntry {
+  id: ResourceId;
+  path: string;
+  subject: ResourceId;
+  role: Role;
+  propagate: boolean;
+  subject_username?: string;
+  created_at: Timestamp;
+}
+
+/** Body for `POST /api/v1/acl` — grant a role on a path to a user. */
+export interface CreateAclEntryRequest {
+  path: string;
+  subject: ResourceId;
+  role: Role;
+  propagate?: boolean;
+}
+
+/** One effective grant on a path for the current caller. */
+export interface PathGrant {
+  path: string;
+  role: Role;
+  propagate: boolean;
 }
 
 /** Body for `POST /api/v1/users` - create a user account. */
