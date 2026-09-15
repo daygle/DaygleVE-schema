@@ -53,6 +53,7 @@ pub mod notification;
 pub mod operations;
 pub mod pci;
 pub mod pool;
+pub mod rbac;
 pub mod schedule;
 pub mod share;
 pub mod snapshot_schedule;

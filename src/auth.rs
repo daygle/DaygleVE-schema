@@ -138,6 +138,11 @@ pub struct CurrentUser {
     /// the UI can show its enrollment state without a separate request.
     #[serde(default)]
     pub two_factor_enabled: bool,
+    /// The caller's path-scoped grants (root roles plus any explicit ACL
+    /// entries), so the UI can tell where the user may act without replaying the
+    /// access-control list. `permissions` above reflects the root (`/`) scope.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub grants: Vec<crate::rbac::PathGrant>,
 }
 
 /// Body for `POST /api/v1/users` - create a user account.
